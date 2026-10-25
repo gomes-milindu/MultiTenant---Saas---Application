@@ -1,0 +1,20 @@
+﻿using WebApplication1.DTO;
+using WebApplication1.Models.Auth;
+
+namespace WebApplication1.Service.Interface
+{
+    public interface IUserService
+    {
+        Task<IReadOnlyCollection<UserResponseDto>> GetAllUsers();
+
+        Task<User> GetUserByEmail(string email);
+        Task<bool> Register(RegisterUserRequest dto);
+        Task<UserResponseDto?> SearchUserByEmail(string email);
+        Task<UserResponseDto?> SearchUserByUsername(string username);
+        Task<bool> SendVerificationEmail(User user);
+        Task<bool> SendVerificationSms(User user);
+        Task<bool> UpdateUser(UpdateUserDto updateUser);
+        Task<bool> VerifyEmailOtp(VerifyEmailOtp dto);
+        Task<bool> VerifySmsOtp(VerifyEmailOtp dto);
+    }
+}
