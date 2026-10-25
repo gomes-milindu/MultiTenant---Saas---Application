@@ -17,7 +17,7 @@ namespace WebApplication1.Controllers
             _instituteService = instituteService;
         }
 
-        [HttpPost]
+        
         [HttpPost("createInstitute")]
         public async Task<IActionResult> Create([FromBody] CreateInstituteDto dto)
         {

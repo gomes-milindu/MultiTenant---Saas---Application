@@ -34,6 +34,10 @@ namespace WebApplication1.Migrations
                     b.Property<Guid>("CreatedByUserId")
                         .HasColumnType("char(36)");
 
+                    b.Property<string>("CreatedByUserName")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
                     b.Property<string>("Description")
                         .HasMaxLength(500)
                         .HasColumnType("varchar(500)");

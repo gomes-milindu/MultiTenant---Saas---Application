@@ -1,4 +1,5 @@
-﻿using WebApplication1.Data;
+﻿using Microsoft.EntityFrameworkCore;
+using WebApplication1.Data;
 using WebApplication1.DTO;
 using WebApplication1.Models.Academic;
 using WebApplication1.Repository.Interface;
@@ -29,6 +30,13 @@ namespace WebApplication1.Repository.Impl
                 CreatedAt = institute.CreatedAt,
                 UpdatedAt = institute.UpdatedAt
             };
+        }
+
+        public async Task<bool> ExistsByNameAsync(string trimmedName, Guid currentUserId)
+        {
+            return await _context.Institutes
+                .AsNoTracking()
+                .AnyAsync(i => i.Name == trimmedName && i.OwnerUserId == currentUserId);
         }
     }
 }

@@ -1,18 +1,17 @@
-using System.Threading.RateLimiting;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi; // .Models නැතුව මේක විතරක් දාන්න
+using System.Text;
+using System.Threading.RateLimiting;
 using WebApplication1.Data;
 using WebApplication1.Repository.Impl;
 using WebApplication1.Repository.Interface;
 using WebApplication1.Service.Impl;
 using WebApplication1.Service.Interface;
-using System.Text;
-using Microsoft.IdentityModel.Tokens;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-
 
 DotNetEnv.Env.Load();
-
 var builder = WebApplication.CreateBuilder(args);
 
 // 1. Connection string resolution
@@ -22,8 +21,6 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 // 2. EF Core - MySQL Configuration
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
-    // Use explicit version (e.g., 8.0.36) to prevent startup crashes if remote DB takes time to connect.
-    // If you prefer auto-detection: ServerVersion.AutoDetect(connectionString)
     var serverVersion = new MySqlServerVersion(new Version(8, 0, 36));
 
     options.UseMySql(connectionString, serverVersion, mySqlOptions =>
@@ -71,6 +68,7 @@ builder.Services.AddControllers()
         options.JsonSerializerOptions.WriteIndented = true;
     });
 
+// 5. Authentication & Authorization
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -90,12 +88,27 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 builder.Services.AddAuthorization();
 
-// 5. Documentation & Explorers
-builder.Services.AddOpenApi();
+// 6. Swagger Configuration (Swashbuckle v10+ ක්‍රමය)
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options =>
+{
+    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        Scheme = "Bearer",
+        BearerFormat = "JWT",
+        In = ParameterLocation.Header,
+        Description = "ඔබගේ JWT Token එක මෙතනට ලබා දෙන්න."
+    });
 
-// 6. Application Services & Repositories
+    options.AddSecurityRequirement(document => new OpenApiSecurityRequirement
+    {
+        [new OpenApiSecuritySchemeReference("Bearer", document)] = []
+    });
+});
+
+// 7. Application Services & Repositories
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IInstituteRepository, InstituteRepository>();
 builder.Services.AddScoped<IUserService, UserService>();
@@ -109,7 +122,7 @@ builder.Services.AddScoped<IInstituteService, InstituteService>();
 builder.Services.AddHttpClient();
 builder.Services.AddHttpContextAccessor();
 
-// 7. CORS
+// 8. CORS
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", policy =>
@@ -128,12 +141,10 @@ using (var scope = app.Services.CreateScope())
     var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     try
     {
-        
-            if (dbContext.Database.CanConnect())
-            {
-                Console.WriteLine("Database connected successfully.");
-            }
-
+        if (dbContext.Database.CanConnect())
+        {
+            Console.WriteLine("Database connected successfully.");
+        }
         else
         {
             Console.WriteLine("Warning: Database reachable test returned false.");
@@ -150,7 +161,6 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
-    app.MapOpenApi();
 }
 
 app.UseHttpsRedirection();
@@ -159,8 +169,6 @@ app.UseRouting();
 app.UseRateLimiter();
 app.UseAuthentication();
 app.UseAuthorization();
-app.MapControllers();
-
 app.MapControllers();
 
 app.Run();

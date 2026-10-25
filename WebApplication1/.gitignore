@@ -1,3 +1,5 @@
 .env
-appsettings.json
 appsettings.Development.json
+bin/
+obj/
+.vs/
