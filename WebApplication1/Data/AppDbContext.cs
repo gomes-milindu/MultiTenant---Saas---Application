@@ -20,6 +20,8 @@ namespace WebApplication1.Data
 
         public DbSet<Institute> Institutes { get; set; }
 
+        public DbSet<Batch> Batches => Set<Batch>();
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
 
@@ -63,6 +65,32 @@ namespace WebApplication1.Data
                       .WithMany()
                       .HasForeignKey(i => i.CreatedByUserId)
                       .OnDelete(DeleteBehavior.Restrict);
+            });
+
+
+            modelBuilder.Entity<Batch>(entity =>
+            {
+                entity.ToTable("Batches");
+                entity.HasKey(b => b.Id);
+
+                entity.Property(b => b.Name).IsRequired().HasMaxLength(100);
+                entity.Property(b => b.AcademicYear).IsRequired();
+                entity.Property(b => b.Description).HasMaxLength(500);
+
+                // Relationship to Institute
+                entity.HasOne(b => b.Institute)
+                      .WithMany()
+                      .HasForeignKey(b => b.InstituteId)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                // Relationship to User (CreatedBy)
+                entity.HasOne(b => b.CreatedByUser)
+                      .WithMany()
+                      .HasForeignKey(b => b.CreatedByUserId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                // Composite Index to prevent duplicate batch names in the same institute
+                entity.HasIndex(b => new { b.InstituteId, b.Name }).IsUnique();
             });
         }
     }

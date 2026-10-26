@@ -7,5 +7,6 @@ namespace WebApplication1.Repository.Interface
     {
         Task<InstituteResponseDto> CreateAsync(Institute institute);
         Task<bool> ExistsByNameAsync(string trimmedName, Guid currentUserId);
+        Task<InstituteResponseDto?> GetByIdAsync(Guid instituteId);
     }
 }

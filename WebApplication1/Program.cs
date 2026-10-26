@@ -118,6 +118,9 @@ builder.Services.AddScoped<ISmsService, SmsSender>();
 builder.Services.AddTransient<IForgotPasswordRepository, ForgotPasswordRepository>();
 builder.Services.AddScoped<IAuditService, AuditService>();
 builder.Services.AddScoped<IInstituteService, InstituteService>();
+builder.Services.AddScoped<IBatchService, BatchService>();
+builder.Services.AddScoped<IBatchRepository, BatchRepository>();
+
 
 builder.Services.AddHttpClient();
 builder.Services.AddHttpContextAccessor();

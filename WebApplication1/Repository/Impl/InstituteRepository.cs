@@ -38,5 +38,24 @@ namespace WebApplication1.Repository.Impl
                 .AsNoTracking()
                 .AnyAsync(i => i.Name == trimmedName && i.OwnerUserId == currentUserId);
         }
+
+        public async Task<InstituteResponseDto?> GetByIdAsync(Guid instituteId)
+        {
+            return await _context.Institutes
+            .AsNoTracking()
+            .Where(i => i.Id == instituteId)
+            .Select(i => new InstituteResponseDto
+            {
+                Id = i.Id,
+                Name = i.Name,
+                Description = i.Description,
+                Status = i.Status,
+                OwnerUserId = i.OwnerUserId,
+                CreatedByUserId = i.CreatedByUserId,
+                CreatedAt = i.CreatedAt,
+                UpdatedAt = i.UpdatedAt
+            })
+            .FirstOrDefaultAsync();
+        }
     }
 }
