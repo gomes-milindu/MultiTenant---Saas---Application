@@ -4,6 +4,8 @@ namespace WebApplication1.Repository.Interface
 {
     public interface IBatchRepository
     {
+        Task<bool> batchExcistforInstitute(string trimmedName, Guid instituteId);
         Task<Batch> CreateAsync(Batch batch);
+        
     }
 }

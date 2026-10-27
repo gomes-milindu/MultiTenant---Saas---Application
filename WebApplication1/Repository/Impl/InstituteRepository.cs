@@ -39,6 +39,8 @@ namespace WebApplication1.Repository.Impl
                 .AnyAsync(i => i.Name == trimmedName && i.OwnerUserId == currentUserId);
         }
 
+        
+
         public async Task<InstituteResponseDto?> GetByIdAsync(Guid instituteId)
         {
             return await _context.Institutes

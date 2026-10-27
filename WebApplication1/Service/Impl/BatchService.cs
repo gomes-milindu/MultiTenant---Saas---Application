@@ -39,14 +39,17 @@ public class BatchService : IBatchService
         {
             throw new InvalidOperationException("The institute is not active.");
         }
-        // 3. Name uniqueness within this institute
+        
         var trimmedName = dto.Name.Trim();
-        /*if (await batchRepository.ExistsByNameInInstituteAsync(dto.InstituteId, trimmedName))
+
+        bool excistInstitute = await batchRepository.batchExcistforInstitute(trimmedName, dto.InstituteId);
+
+        if(excistInstitute)
         {
             throw new InvalidOperationException($"A batch named '{trimmedName}' already exists in this institute.");
-        }*/
+        }
+        
 
-        // 4. Create Batch Entity
         var batch = new Batch
         {
             Id = Guid.NewGuid(),
