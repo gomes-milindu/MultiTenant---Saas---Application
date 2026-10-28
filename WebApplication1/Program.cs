@@ -120,6 +120,8 @@ builder.Services.AddScoped<IAuditService, AuditService>();
 builder.Services.AddScoped<IInstituteService, InstituteService>();
 builder.Services.AddScoped<IBatchService, BatchService>();
 builder.Services.AddScoped<IBatchRepository, BatchRepository>();
+builder.Services.AddScoped<ISubjectService, SubjectService>();
+builder.Services.AddScoped<ISubjectRepository, SubjectRepository>();
 
 
 builder.Services.AddHttpClient();

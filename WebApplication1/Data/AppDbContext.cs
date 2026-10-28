@@ -22,6 +22,8 @@ namespace WebApplication1.Data
 
         public DbSet<Batch> Batches => Set<Batch>();
 
+        public DbSet<Subject> Subjects { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
 
@@ -91,6 +93,30 @@ namespace WebApplication1.Data
 
                 // Composite Index to prevent duplicate batch names in the same institute
                 entity.HasIndex(b => new { b.InstituteId, b.Name }).IsUnique();
+            });
+
+            modelBuilder.Entity<Subject>(entity =>
+            {
+                entity.ToTable("Subjects");
+                entity.HasKey(s => s.Id);
+
+                entity.Property(s => s.Name).IsRequired().HasMaxLength(100);
+                entity.Property(s => s.Description).HasMaxLength(300);
+
+                // Owner (Teacher) Relationship
+                entity.HasOne(s => s.OwnerUser)
+                      .WithMany()
+                      .HasForeignKey(s => s.OwnerUserId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                // Creator (Admin or Teacher) Relationship
+                entity.HasOne(s => s.CreatedByUser)
+                      .WithMany()
+                      .HasForeignKey(s => s.CreatedByUserId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                // එකම Teacher ට එකම නමින් Subject දෙකක් සෑදීම වැළැක්වීමට
+                entity.HasIndex(s => new { s.OwnerUserId, s.Name }).IsUnique();
             });
         }
     }

@@ -39,5 +39,4 @@ public class Institute
     [ForeignKey(nameof(CreatedByUserId))]
     public User? CreatedByUser { get; set; }
 
-    public string CreatedByUserName { get; set; }
 }

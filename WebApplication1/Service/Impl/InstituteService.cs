@@ -67,7 +67,6 @@ namespace WebApplication1.Service.Impl
                 Status = InstituteStatus.Active,
                 OwnerUserId = owner.Id,
                 CreatedByUserId = creator.Id,
-                CreatedByUserName = creator.Username,
                 CreatedAt = DateTime.UtcNow
             };
 

@@ -83,10 +83,6 @@ namespace WebApplication1.Migrations
                     b.Property<Guid>("CreatedByUserId")
                         .HasColumnType("char(36)");
 
-                    b.Property<string>("CreatedByUserName")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
                     b.Property<string>("Description")
                         .HasMaxLength(500)
                         .HasColumnType("varchar(500)");
@@ -112,6 +108,40 @@ namespace WebApplication1.Migrations
                     b.HasIndex("OwnerUserId");
 
                     b.ToTable("Institutes", (string)null);
+                });
+
+            modelBuilder.Entity("WebApplication1.Models.Academic.Subject", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<Guid>("CreatedByUserId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(300)
+                        .HasColumnType("varchar(300)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
+
+                    b.Property<Guid>("OwnerUserId")
+                        .HasColumnType("char(36)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedByUserId");
+
+                    b.HasIndex("OwnerUserId", "Name")
+                        .IsUnique();
+
+                    b.ToTable("Subjects", (string)null);
                 });
 
             modelBuilder.Entity("WebApplication1.Models.Auth.ForgotPassword", b =>
@@ -317,6 +347,25 @@ namespace WebApplication1.Migrations
                 });
 
             modelBuilder.Entity("WebApplication1.Models.Academic.Institute", b =>
+                {
+                    b.HasOne("WebApplication1.Models.Auth.User", "CreatedByUser")
+                        .WithMany()
+                        .HasForeignKey("CreatedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("WebApplication1.Models.Auth.User", "OwnerUser")
+                        .WithMany()
+                        .HasForeignKey("OwnerUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("CreatedByUser");
+
+                    b.Navigation("OwnerUser");
+                });
+
+            modelBuilder.Entity("WebApplication1.Models.Academic.Subject", b =>
                 {
                     b.HasOne("WebApplication1.Models.Auth.User", "CreatedByUser")
                         .WithMany()
