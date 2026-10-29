@@ -21,6 +21,17 @@ namespace WebApplication1.Repository.Impl
             await _context.SaveChangesAsync();
             return subject;
         }
+
+        public async Task<Subject?> GetSubjectByIdAsync(Guid id)
+        {
+            return await _context.Subjects
+                .Include(s => s.OwnerUser)       // අදාළ Teacher විස්තර අවශ්‍ය නම්
+                .Include(s => s.CreatedByUser)   // හැදූ User විස්තර අවශ්‍ය නම්
+                .AsNoTracking()
+                .FirstOrDefaultAsync(s => s.Id == id);
+        }
+
+        
     }
     
 }

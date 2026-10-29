@@ -15,6 +15,9 @@ namespace WebApplication1.Models.Academic
         public Guid InstituteId { get; set; }
 
         [Required]
+        public Guid OwnerTeacherId { get; set; }
+
+        [Required]
         [MaxLength(100)]
         public string Name { get; set; } = string.Empty;
 
@@ -41,5 +44,8 @@ namespace WebApplication1.Models.Academic
 
         [ForeignKey(nameof(CreatedByUserId))]
         public User CreatedByUser { get; set; } = null!;
+
+        [ForeignKey(nameof(OwnerTeacherId))]
+        public User OwnerTeacher { get; set; } = null!;
     }
 }

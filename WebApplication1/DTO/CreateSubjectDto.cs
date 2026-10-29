@@ -10,6 +10,6 @@ namespace WebApplication1.DTO
 
         [MaxLength(300, ErrorMessage = "Description cannot exceed 300 characters.")]
         public string? Description { get; set; }
-        public string? OwnerTeacherUserName { get; set; }
+        public Guid? OwnerTeacherId { get; set; }
     }
 }

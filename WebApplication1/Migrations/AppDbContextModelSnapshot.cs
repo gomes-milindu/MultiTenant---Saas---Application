@@ -52,6 +52,9 @@ namespace WebApplication1.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("varchar(100)");
 
+                    b.Property<Guid>("OwnerTeacherId")
+                        .HasColumnType("char(36)");
+
                     b.Property<DateTime?>("StartDate")
                         .HasColumnType("datetime(6)");
 
@@ -65,10 +68,70 @@ namespace WebApplication1.Migrations
 
                     b.HasIndex("CreatedByUserId");
 
-                    b.HasIndex("InstituteId", "Name")
+                    b.HasIndex("InstituteId");
+
+                    b.HasIndex("OwnerTeacherId");
+
+                    b.HasIndex("InstituteId", "OwnerTeacherId", "Name")
                         .IsUnique();
 
                     b.ToTable("Batches", (string)null);
+                });
+
+            modelBuilder.Entity("WebApplication1.Models.Academic.Class", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)");
+
+                    b.Property<Guid>("BatchId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<Guid>("CreatedByUserId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<Guid>("InstituteId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("Schedule")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("varchar(150)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("SubjectId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<Guid>("TeacherUserId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("varchar(150)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BatchId");
+
+                    b.HasIndex("CreatedByUserId");
+
+                    b.HasIndex("SubjectId");
+
+                    b.HasIndex("TeacherUserId");
+
+                    b.HasIndex("InstituteId", "BatchId", "SubjectId", "Title")
+                        .IsUnique();
+
+                    b.ToTable("Classes", (string)null);
                 });
 
             modelBuilder.Entity("WebApplication1.Models.Academic.Institute", b =>
@@ -341,9 +404,60 @@ namespace WebApplication1.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("WebApplication1.Models.Auth.User", "OwnerTeacher")
+                        .WithMany()
+                        .HasForeignKey("OwnerTeacherId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.Navigation("CreatedByUser");
 
                     b.Navigation("Institute");
+
+                    b.Navigation("OwnerTeacher");
+                });
+
+            modelBuilder.Entity("WebApplication1.Models.Academic.Class", b =>
+                {
+                    b.HasOne("WebApplication1.Models.Academic.Batch", "Batch")
+                        .WithMany()
+                        .HasForeignKey("BatchId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("WebApplication1.Models.Auth.User", "CreatedByUser")
+                        .WithMany()
+                        .HasForeignKey("CreatedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("WebApplication1.Models.Academic.Institute", "Institute")
+                        .WithMany()
+                        .HasForeignKey("InstituteId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("WebApplication1.Models.Academic.Subject", "Subject")
+                        .WithMany()
+                        .HasForeignKey("SubjectId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("WebApplication1.Models.Auth.User", "Teacher")
+                        .WithMany()
+                        .HasForeignKey("TeacherUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Batch");
+
+                    b.Navigation("CreatedByUser");
+
+                    b.Navigation("Institute");
+
+                    b.Navigation("Subject");
+
+                    b.Navigation("Teacher");
                 });
 
             modelBuilder.Entity("WebApplication1.Models.Academic.Institute", b =>

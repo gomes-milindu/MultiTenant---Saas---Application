@@ -24,6 +24,8 @@ namespace WebApplication1.Data
 
         public DbSet<Subject> Subjects { get; set; }
 
+        public DbSet<Class> Classes  { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
 
@@ -75,24 +77,29 @@ namespace WebApplication1.Data
                 entity.ToTable("Batches");
                 entity.HasKey(b => b.Id);
 
-                entity.Property(b => b.Name).IsRequired().HasMaxLength(100);
-                entity.Property(b => b.AcademicYear).IsRequired();
-                entity.Property(b => b.Description).HasMaxLength(500);
-
-                // Relationship to Institute
+                // Foreign Key to Institute
                 entity.HasOne(b => b.Institute)
                       .WithMany()
                       .HasForeignKey(b => b.InstituteId)
                       .OnDelete(DeleteBehavior.Cascade);
 
-                // Relationship to User (CreatedBy)
+                // Foreign Key to Teacher (Owner)
+                entity.HasOne(b => b.OwnerTeacher)
+                      .WithMany()
+                      .HasForeignKey(b => b.OwnerTeacherId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                // Foreign Key to Creator (Audit)
                 entity.HasOne(b => b.CreatedByUser)
                       .WithMany()
                       .HasForeignKey(b => b.CreatedByUserId)
                       .OnDelete(DeleteBehavior.Restrict);
 
-                // Composite Index to prevent duplicate batch names in the same institute
-                entity.HasIndex(b => new { b.InstituteId, b.Name }).IsUnique();
+                // 🟢 1. Foreign Key එක වෙනුවෙන් InstituteId එකට වෙනම Index එකක් (MySQL Error එක නැතිවීමට මෙය අනිවාර්යයි)
+                entity.HasIndex(b => b.InstituteId);
+
+                // 🟢 2. අලුත් Composite Unique Index එක (Institute + Teacher + Name)
+                entity.HasIndex(b => new { b.InstituteId, b.OwnerTeacherId, b.Name }).IsUnique();
             });
 
             modelBuilder.Entity<Subject>(entity =>
@@ -117,6 +124,49 @@ namespace WebApplication1.Data
 
                 // එකම Teacher ට එකම නමින් Subject දෙකක් සෑදීම වැළැක්වීමට
                 entity.HasIndex(s => new { s.OwnerUserId, s.Name }).IsUnique();
+            });
+
+
+            modelBuilder.Entity<Class>(entity =>
+            {
+                entity.ToTable("Classes");
+                entity.HasKey(c => c.Id);
+
+                entity.Property(c => c.Title).IsRequired().HasMaxLength(150);
+                entity.Property(c => c.Schedule).HasMaxLength(150);
+
+                // Relationship to Institute
+                entity.HasOne(c => c.Institute)
+                      .WithMany()
+                      .HasForeignKey(c => c.InstituteId)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                // Relationship to Batch
+                entity.HasOne(c => c.Batch)
+                      .WithMany()
+                      .HasForeignKey(c => c.BatchId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                // Relationship to Subject
+                entity.HasOne(c => c.Subject)
+                      .WithMany()
+                      .HasForeignKey(c => c.SubjectId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                // Relationship to Teacher (User)
+                entity.HasOne(c => c.Teacher)
+                      .WithMany()
+                      .HasForeignKey(c => c.TeacherUserId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                // Relationship to Creator (User)
+                entity.HasOne(c => c.CreatedByUser)
+                      .WithMany()
+                      .HasForeignKey(c => c.CreatedByUserId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                // එකම Institute එකක් තුළ එකම Batch එකට එකම විෂය සඳහා එකම මාතෘකාවෙන් Classes duplicate වීම වැළැක්වීමට
+                entity.HasIndex(c => new { c.InstituteId, c.BatchId, c.SubjectId, c.Title }).IsUnique();
             });
         }
     }

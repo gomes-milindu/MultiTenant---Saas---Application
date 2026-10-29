@@ -6,6 +6,8 @@ namespace WebApplication1.DTO
     {
         public Guid Id { get; set; }
         public Guid InstituteId { get; set; }
+        public Guid OwnerTeacherId { get; set; }
+        public string OwnerTeacherUserName { get; set; } = string.Empty;
         public string Name { get; set; } = string.Empty;
         public int AcademicYear { get; set; }
         public string? Description { get; set; }

@@ -5,5 +5,6 @@ namespace WebApplication1.Service.Interface
     public interface IBatchService
     {
         Task<BatchResponseDto> CreateAsync(CreateBatchDto dto, Guid currentUserId, bool isAdmin);
+        Task<IEnumerable<BatchResponseDto>> GetAllAsync();
     }
 }

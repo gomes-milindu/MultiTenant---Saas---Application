@@ -7,6 +7,8 @@ namespace WebApplication1.DTO
         [Required(ErrorMessage = "Institute ID is required.")]
         public Guid InstituteId { get; set; }
 
+        public Guid? OwnerTeacherId { get; set; }
+
         [Required(ErrorMessage = "Batch name is required.")]
         [StringLength(100, MinimumLength = 2, ErrorMessage = "Batch name must be between 2 and 100 characters.")]
         public string Name { get; set; } = string.Empty;

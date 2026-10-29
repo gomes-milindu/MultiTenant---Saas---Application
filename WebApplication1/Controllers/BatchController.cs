@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using WebApplication1.DTO;
+using WebApplication1.Service.Impl;
 using WebApplication1.Service.Interface;
 
 namespace WebApplication1.Controllers
@@ -10,7 +11,7 @@ namespace WebApplication1.Controllers
     [ApiController]
     [Route("api/[controller]")]
     [Authorize]
-    public class BatchController:ControllerBase
+    public class BatchController : ControllerBase
     {
         private readonly IBatchService batchService;
 
@@ -52,6 +53,16 @@ namespace WebApplication1.Controllers
                 return BadRequest(new { message = ex.Message });
             }
         }
+
+
+        //[HttpGet]
+        //[Authorize(Roles = "SuperAdmin")] // 🔒 Super Admin ට පමණක් සීමා කර ඇත
+        
+        //public async Task<IActionResult> GetAll()
+        //{
+        //    var batches = await batchService.GetAllAsync();
+        //    return Ok(batches);
+        //}
 
     }
 }

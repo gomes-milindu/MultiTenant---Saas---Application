@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi; // .Models නැතුව මේක විතරක් දාන්න
+using Microsoft.OpenApi; 
 using System.Text;
 using System.Threading.RateLimiting;
 using WebApplication1.Data;
@@ -122,6 +122,8 @@ builder.Services.AddScoped<IBatchService, BatchService>();
 builder.Services.AddScoped<IBatchRepository, BatchRepository>();
 builder.Services.AddScoped<ISubjectService, SubjectService>();
 builder.Services.AddScoped<ISubjectRepository, SubjectRepository>();
+builder.Services.AddScoped<IClassRepository, ClassRepository>();
+builder.Services.AddScoped<IClassService, ClassService>();
 
 
 builder.Services.AddHttpClient();

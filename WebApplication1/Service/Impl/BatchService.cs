@@ -39,7 +39,30 @@ public class BatchService : IBatchService
         {
             throw new InvalidOperationException("The institute is not active.");
         }
+
         
+
+        Guid assignedTeacherId;
+        if (isAdmin)
+        {
+            if (!dto.OwnerTeacherId.HasValue || dto.OwnerTeacherId.Value == Guid.Empty)
+                throw new InvalidOperationException("SuperAdmin must select a teacher for this batch.");
+
+
+
+            assignedTeacherId = dto.OwnerTeacherId.Value;
+        }
+        else
+        {
+            // Teacher කෙනෙක් හදන විට Token ID එක Owner ලෙස පත් කරයි
+            assignedTeacherId = currentUserId;
+        }
+
+        if (institute.OwnerUserId != assignedTeacherId)
+        {
+            throw new UnauthorizedAccessException("The owner of the batch must match the owner of the institute.");
+        }
+
         var trimmedName = dto.Name.Trim();
 
         bool excistInstitute = await batchRepository.batchExcistforInstitute(trimmedName, dto.InstituteId);
@@ -54,6 +77,7 @@ public class BatchService : IBatchService
         {
             Id = Guid.NewGuid(),
             InstituteId = dto.InstituteId,
+            OwnerTeacherId = assignedTeacherId,
             Name = trimmedName,
             AcademicYear = dto.AcademicYear,
             Description = dto.Description?.Trim(),
@@ -70,6 +94,7 @@ public class BatchService : IBatchService
         {
             Id = created.Id,
             InstituteId = created.InstituteId,
+            OwnerTeacherId = created.OwnerTeacherId,
             Name = created.Name,
             AcademicYear = created.AcademicYear,
             Description = created.Description,
@@ -79,5 +104,27 @@ public class BatchService : IBatchService
             CreatedByUserId = created.CreatedByUserId,
             CreatedAt = created.CreatedAt
         };
+    }
+
+    public async Task<IEnumerable<BatchResponseDto>> GetAllAsync()
+    {
+        var batches = await batchRepository.GetAllAsync();
+
+        return batches.Select(b => new BatchResponseDto
+        {
+            Id = b.Id,
+            InstituteId = b.InstituteId,
+            OwnerTeacherId = b.OwnerTeacherId,
+            OwnerTeacherUserName = b.OwnerTeacher?.Username ?? string.Empty,
+            Name = b.Name,
+            AcademicYear = b.AcademicYear,
+            Description = b.Description,
+            StartDate = b.StartDate,
+            EndDate = b.EndDate,
+            Status = b.Status,
+            CreatedByUserId = b.CreatedByUserId,
+            CreatedAt = b.CreatedAt,
+            UpdatedAt = b.UpdatedAt
+        });
     }
 }

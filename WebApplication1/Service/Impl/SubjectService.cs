@@ -22,14 +22,14 @@ namespace WebApplication1.Service.Impl
             var trimmedName = dto.Name.Trim();
             Guid finalOwnerId;
 
-            var ownerTeacher = await UserRepository.GetUserByUsername(dto.OwnerTeacherUserName.Trim());
+            var ownerTeacher = await UserRepository.GetUserByIdAsync(dto.OwnerTeacherId.Value);
 
             if (isAdmin)
             {
                 
 
                 if (ownerTeacher is null)
-                    throw new ArgumentException($"Teacher '{dto.OwnerTeacherUserName}' was not found.");
+                    throw new ArgumentException($"Teacher '{ownerTeacher.Username}' was not found.");
 
                 finalOwnerId = ownerTeacher.Id;
             }

@@ -27,6 +27,24 @@ namespace WebApplication1.Repository.Impl
             return batch;
         }
 
-        
+        public async Task<Batch?> GetByIdAsync(Guid id)
+        {
+            return await _context.Batches
+                .Include(b => b.Institute)
+                
+                .AsNoTracking()
+                .FirstOrDefaultAsync(b => b.Id == id);
+        }
+
+        public async Task<IEnumerable<Batch>> GetAllAsync()
+        {
+            return await _context.Batches
+                .Include(b => b.Institute)
+                .Include(b => b.OwnerTeacher)
+                .IgnoreQueryFilters()
+                .OrderByDescending(b => b.CreatedAt)
+                .AsNoTracking()
+                .ToListAsync();
+        }
     }
 }
