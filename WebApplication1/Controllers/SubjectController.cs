@@ -20,7 +20,7 @@ namespace WebApplication1.Controllers
             this.subjectService = subjectService;
         }
 
-        [HttpPost]
+        [HttpPost("CreateSubject")]
         public async Task<IActionResult> Create([FromBody] CreateSubjectDto dto)
         {
             var idClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);

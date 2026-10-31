@@ -20,7 +20,7 @@ namespace WebApplication1.Controllers
             this.batchService = batchService;
         }
 
-        [HttpPost]
+        [HttpPost("CreateBatches")]
         public async Task<IActionResult> Create([FromBody] CreateBatchDto dto)
         {
             var idClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);

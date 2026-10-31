@@ -59,10 +59,10 @@ namespace WebApplication1.Service.Impl
                 };
             }
 
-            // raw token ekak hdnwa email ekata ywnna
+            
             var rawToken = Convert.ToHexString(RandomNumberGenerator.GetBytes(32));
             
-            // token eka hashn krnwa db eke save krnna
+            
             using var sha256 = SHA256.Create();
             var tokenHash = Convert.ToHexString(sha256.ComputeHash(Encoding.UTF8.GetBytes(rawToken)));
 

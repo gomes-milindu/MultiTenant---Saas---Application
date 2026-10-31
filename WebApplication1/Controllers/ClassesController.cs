@@ -21,7 +21,7 @@ public class ClassesController : ControllerBase
     }
 
     
-    [HttpPost]
+    [HttpPost("CreateClasses")]
     [Authorize(Roles = "Admin,SuperAdmin,Teacher")]
     [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(ClassResponseDto))]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]

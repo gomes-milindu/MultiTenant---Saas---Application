@@ -54,6 +54,8 @@ namespace WebApplication1.Models.Academic
 
         [ForeignKey(nameof(CreatedByUserId))]
         public User CreatedByUser { get; set; } = null!;
+        
+        public ICollection<ClassFeePlan> FeePlans { get; set; } = new List<ClassFeePlan>();
 
     }
 }

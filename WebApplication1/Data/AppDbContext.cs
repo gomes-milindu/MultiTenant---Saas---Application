@@ -26,6 +26,8 @@ namespace WebApplication1.Data
 
         public DbSet<Class> Classes  { get; set; }
 
+        public DbSet<ClassFeePlan> ClassFeePlans => Set<ClassFeePlan>();
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
 
@@ -167,6 +169,32 @@ namespace WebApplication1.Data
 
                 // එකම Institute එකක් තුළ එකම Batch එකට එකම විෂය සඳහා එකම මාතෘකාවෙන් Classes duplicate වීම වැළැක්වීමට
                 entity.HasIndex(c => new { c.InstituteId, c.BatchId, c.SubjectId, c.Title }).IsUnique();
+            });
+
+            modelBuilder.Entity<ClassFeePlan>(entity =>
+            {
+                entity.ToTable("Class_Fee_Plans");
+                entity.HasKey(fp => fp.Id);
+
+                // මුදල් අගය සඳහා Precision එක නියම කිරීම
+                entity.Property(fp => fp.MonthlyFee)
+                      .IsRequired()
+                      .HasColumnType("decimal(18,2)");
+
+                // Relationship to Class (පන්තියක් මැකුවහොත් ඊට අදාළ Fee Plans ද මැකී යයි)
+                entity.HasOne(fp => fp.Class)
+                      .WithMany(c => c.FeePlans)
+                      .HasForeignKey(fp => fp.ClassId)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                // Relationship to Creator User
+                entity.HasOne(fp => fp.CreatedByUser)
+                      .WithMany()
+                      .HasForeignKey(fp => fp.CreatedByUserId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                // ClassId මත Index එකක් (Query speed වැඩි කිරීමට)
+                entity.HasIndex(fp => new { fp.ClassId, fp.IsActive });
             });
         }
     }

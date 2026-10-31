@@ -134,6 +134,45 @@ namespace WebApplication1.Migrations
                     b.ToTable("Classes", (string)null);
                 });
 
+            modelBuilder.Entity("WebApplication1.Models.Academic.ClassFeePlan", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)");
+
+                    b.Property<Guid>("ClassId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<Guid>("CreatedByUserId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<DateTime>("EffectiveFrom")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<DateTime?>("EffectiveTo")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<decimal>("MonthlyFee")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedByUserId");
+
+                    b.HasIndex("ClassId", "IsActive");
+
+                    b.ToTable("Class_Fee_Plans", (string)null);
+                });
+
             modelBuilder.Entity("WebApplication1.Models.Academic.Institute", b =>
                 {
                     b.Property<Guid>("Id")
@@ -460,6 +499,25 @@ namespace WebApplication1.Migrations
                     b.Navigation("Teacher");
                 });
 
+            modelBuilder.Entity("WebApplication1.Models.Academic.ClassFeePlan", b =>
+                {
+                    b.HasOne("WebApplication1.Models.Academic.Class", "Class")
+                        .WithMany("FeePlans")
+                        .HasForeignKey("ClassId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("WebApplication1.Models.Auth.User", "CreatedByUser")
+                        .WithMany()
+                        .HasForeignKey("CreatedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Class");
+
+                    b.Navigation("CreatedByUser");
+                });
+
             modelBuilder.Entity("WebApplication1.Models.Academic.Institute", b =>
                 {
                     b.HasOne("WebApplication1.Models.Auth.User", "CreatedByUser")
@@ -529,6 +587,11 @@ namespace WebApplication1.Migrations
                         .IsRequired();
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("WebApplication1.Models.Academic.Class", b =>
+                {
+                    b.Navigation("FeePlans");
                 });
 
             modelBuilder.Entity("WebApplication1.Models.Auth.User", b =>
