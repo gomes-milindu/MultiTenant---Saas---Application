@@ -8,6 +8,7 @@ using System.Threading.RateLimiting;
 using WebApplication1.Data;
 using WebApplication1.Repository.Impl;
 using WebApplication1.Repository.Interface;
+using WebApplication1.Service.Academic.Impl;
 using WebApplication1.Service.Impl;
 using WebApplication1.Service.Interface;
 
@@ -124,7 +125,10 @@ builder.Services.AddScoped<ISubjectService, SubjectService>();
 builder.Services.AddScoped<ISubjectRepository, SubjectRepository>();
 builder.Services.AddScoped<IClassRepository, ClassRepository>();
 builder.Services.AddScoped<IClassService, ClassService>();
-
+builder.Services.AddScoped<IClassFeePlanRepository, ClassFeePlanRepository>();
+builder.Services.AddScoped<IClassFeePlanService, ClassFeePlanService>();
+builder.Services.AddScoped<IEnrollmentRepository, EnrollmentRepository>();
+builder.Services.AddScoped<IEnrollmentService, EnrollmentService>();
 
 builder.Services.AddHttpClient();
 builder.Services.AddHttpContextAccessor();

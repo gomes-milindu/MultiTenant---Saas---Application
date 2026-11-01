@@ -173,6 +173,53 @@ namespace WebApplication1.Migrations
                     b.ToTable("Class_Fee_Plans", (string)null);
                 });
 
+            modelBuilder.Entity("WebApplication1.Models.Academic.Enrollment", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)");
+
+                    b.Property<decimal?>("AgreedMonthlyFee")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime?>("ApprovedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<Guid?>("ApprovedBy")
+                        .HasColumnType("char(36)");
+
+                    b.Property<Guid>("BatchId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<Guid>("ClassId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)");
+
+                    b.Property<DateTime>("RequestedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("StudentUserId")
+                        .HasColumnType("char(36)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ApprovedBy");
+
+                    b.HasIndex("BatchId");
+
+                    b.HasIndex("ClassId", "Status");
+
+                    b.HasIndex("StudentUserId", "ClassId");
+
+                    b.ToTable("Enrollments", (string)null);
+                });
+
             modelBuilder.Entity("WebApplication1.Models.Academic.Institute", b =>
                 {
                     b.Property<Guid>("Id")
@@ -516,6 +563,40 @@ namespace WebApplication1.Migrations
                     b.Navigation("Class");
 
                     b.Navigation("CreatedByUser");
+                });
+
+            modelBuilder.Entity("WebApplication1.Models.Academic.Enrollment", b =>
+                {
+                    b.HasOne("WebApplication1.Models.Auth.User", "Approver")
+                        .WithMany()
+                        .HasForeignKey("ApprovedBy")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("WebApplication1.Models.Academic.Batch", "Batch")
+                        .WithMany()
+                        .HasForeignKey("BatchId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("WebApplication1.Models.Academic.Class", "Class")
+                        .WithMany()
+                        .HasForeignKey("ClassId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("WebApplication1.Models.Auth.User", "Student")
+                        .WithMany()
+                        .HasForeignKey("StudentUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Approver");
+
+                    b.Navigation("Batch");
+
+                    b.Navigation("Class");
+
+                    b.Navigation("Student");
                 });
 
             modelBuilder.Entity("WebApplication1.Models.Academic.Institute", b =>

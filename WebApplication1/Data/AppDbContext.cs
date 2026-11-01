@@ -28,6 +28,8 @@ namespace WebApplication1.Data
 
         public DbSet<ClassFeePlan> ClassFeePlans => Set<ClassFeePlan>();
 
+        public DbSet<Enrollment> Enrollments => Set<Enrollment>();
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
 
@@ -195,6 +197,57 @@ namespace WebApplication1.Data
 
                 // ClassId මත Index එකක් (Query speed වැඩි කිරීමට)
                 entity.HasIndex(fp => new { fp.ClassId, fp.IsActive });
+            });
+
+            modelBuilder.Entity<Enrollment>(entity =>
+            {
+                entity.ToTable("Enrollments");
+
+                entity.HasKey(e => e.Id);
+
+                entity.Property(e => e.Status)
+                      .IsRequired();
+
+                entity.Property(e => e.RequestedAt)
+                      .IsRequired();
+
+                entity.Property(e => e.AgreedMonthlyFee)
+                      .HasColumnType("decimal(18,2)");
+
+                entity.Property(e => e.Notes)
+                      .HasMaxLength(500);
+
+                entity.HasOne(e => e.Student)
+                      .WithMany()
+                      .HasForeignKey(e => e.StudentUserId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(e => e.Class)
+                      .WithMany()
+                      .HasForeignKey(e => e.ClassId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(e => e.Batch)
+                      .WithMany()
+                      .HasForeignKey(e => e.BatchId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(e => e.Approver)
+                      .WithMany()
+                      .HasForeignKey(e => e.ApprovedBy)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasIndex(e => new
+                {
+                    e.StudentUserId,
+                    e.ClassId
+                });
+
+                entity.HasIndex(e => new
+                {
+                    e.ClassId,
+                    e.Status
+                });
             });
         }
     }

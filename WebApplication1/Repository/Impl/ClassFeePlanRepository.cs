@@ -42,5 +42,17 @@ namespace WebApplication1.Repository.Impl
                 .AsNoTracking()
                 .FirstOrDefaultAsync(fp => fp.Id == id);
         }
+
+        public async Task<ClassFeePlan?> GetCurrentFeePlanAsync(Guid classId,DateTime currentDate)
+        {
+            return await _context.ClassFeePlans
+                .AsNoTracking()
+                .Where(f => f.ClassId == classId
+                    && f.IsActive
+                    && f.EffectiveFrom <= currentDate
+                    && (f.EffectiveTo == null || f.EffectiveTo >= currentDate))
+                .OrderByDescending(f => f.EffectiveFrom)
+                .FirstOrDefaultAsync();
+        }
     }
 }

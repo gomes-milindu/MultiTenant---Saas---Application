@@ -40,7 +40,7 @@ public class ClassFeePlanService : IClassFeePlanService
             throw new UnauthorizedAccessException("You do not have permission to set fee plans for this class.");
         }
 
-        if (classEntity.TeacherUserId != currentUserId)
+        if (!isAdmin && classEntity.TeacherUserId != currentUserId)
         {
             throw new UnauthorizedAccessException("You can only create fee plans for your own classes.");
         }

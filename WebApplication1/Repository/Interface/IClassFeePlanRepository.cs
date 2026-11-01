@@ -8,6 +8,8 @@ namespace WebApplication1.Repository.Interface
 
         Task<ClassFeePlan?> GetActivePlanByClassIdAsync(Guid classId);
 
+        Task<ClassFeePlan?> GetCurrentFeePlanAsync(Guid classId, DateTime currentDate);
+
         Task<ClassFeePlan?> GetByIdAsync(Guid id);
         Task<ClassFeePlan> CreateAsync(ClassFeePlan feePlan);
         Task UpdateAsync(ClassFeePlan feePlan);
