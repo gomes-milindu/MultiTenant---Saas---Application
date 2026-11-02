@@ -19,6 +19,7 @@ public class ClassFeePlanService : IClassFeePlanService
         this.classRepository = classRepository;
     }
 
+    // this is sample text
     public async Task<ClassFeePlanResponseDto> CreateAsync(CreateClassFeePlanDto dto, Guid currentUserId, bool isAdmin)
     {
         
