@@ -1,15 +1,19 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace WebApplication1.DTO
 {
     public class CreateClassDto
     {
+        [JsonRequired]
         [Required(ErrorMessage = "Institute ID is required.")]
         public Guid InstituteId { get; set; }
 
+        [JsonRequired]
         [Required(ErrorMessage = "Batch ID is required.")]
         public Guid BatchId { get; set; }
 
+        [JsonRequired]
         [Required(ErrorMessage = "Subject ID is required.")]
         public Guid SubjectId { get; set; }
         public Guid? TeacherUserId { get; set; }

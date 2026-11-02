@@ -29,7 +29,7 @@ namespace WebApplication1.Service.Impl
                 
 
                 if (ownerTeacher is null)
-                    throw new ArgumentException($"Teacher '{ownerTeacher.Username}' was not found.");
+                    throw new ArgumentException($"Specified teacher was not found.");
 
                 finalOwnerId = ownerTeacher.Id;
             }

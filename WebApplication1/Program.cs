@@ -100,7 +100,7 @@ builder.Services.AddSwaggerGen(options =>
         Scheme = "Bearer",
         BearerFormat = "JWT",
         In = ParameterLocation.Header,
-        Description = "ඔබගේ JWT Token එක මෙතනට ලබා දෙන්න."
+        Description = "Enter your JWT token here"
     });
 
     options.AddSecurityRequirement(document => new OpenApiSecurityRequirement
@@ -152,7 +152,7 @@ using (var scope = app.Services.CreateScope())
     var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     try
     {
-        if (dbContext.Database.CanConnect())
+        if (await dbContext.Database.CanConnectAsync())
         {
             Console.WriteLine("Database connected successfully.");
         }
@@ -182,4 +182,4 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 
-app.Run();
+await app.RunAsync();

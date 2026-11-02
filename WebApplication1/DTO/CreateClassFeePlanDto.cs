@@ -1,9 +1,11 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace WebApplication1.DTO
 {
     public class CreateClassFeePlanDto
     {
+        [JsonRequired]
         [Required(ErrorMessage = "Class ID is required.")]
         public Guid ClassId { get; set; }
 
