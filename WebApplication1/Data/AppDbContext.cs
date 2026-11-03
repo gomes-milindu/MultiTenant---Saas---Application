@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using WebApplication1.Models.Academic;
 using WebApplication1.Models.Auth;
+using WebApplication1.Models.Subscriptions;
 using WebApplication1.Models.System;
 
 namespace WebApplication1.Data
@@ -29,6 +30,8 @@ namespace WebApplication1.Data
         public DbSet<ClassFeePlan> ClassFeePlans => Set<ClassFeePlan>();
 
         public DbSet<Enrollment> Enrollments => Set<Enrollment>();
+
+        public DbSet<Package> Packages => Set<Package>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -248,6 +251,18 @@ namespace WebApplication1.Data
                     e.ClassId,
                     e.Status
                 });
+            });
+
+
+            modelBuilder.Entity<Package>(entity =>
+            {
+                entity.ToTable("Packages"); // 🟢 "Packages" ලෙස Capital 'P' අකුර භාවිත කරන්න
+                entity.HasKey(p => p.Id);
+
+                entity.Property(p => p.Price).HasColumnType("decimal(18,2)");
+
+                // පැකේජ් කේතය (Code) සඳහා Unique Index එකක් යෙදීම
+                entity.HasIndex(p => p.Code).IsUnique();
             });
         }
     }

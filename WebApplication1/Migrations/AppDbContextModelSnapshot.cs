@@ -444,6 +444,69 @@ namespace WebApplication1.Migrations
                     b.ToTable("UserProfiles");
                 });
 
+            modelBuilder.Entity("WebApplication1.Models.Subscriptions.Package", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("Currency")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("varchar(10)");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)");
+
+                    b.Property<int>("DurationDays")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<bool>("IsFree")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<int?>("MaxBatches")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("MaxClasses")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("MaxRecordedLessons")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("MaxStudents")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
+
+                    b.Property<decimal>("Price")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Code")
+                        .IsUnique();
+
+                    b.ToTable("Packages", (string)null);
+                });
+
             modelBuilder.Entity("WebApplication1.Models.System.AuditLog", b =>
                 {
                     b.Property<Guid>("Id")

@@ -201,12 +201,32 @@ namespace WebApplication1.Service.Impl
                                         },
                                         expires: DateTime.UtcNow.AddHours(1),
                                         signingCredentials: new SigningCredentials(
-                                            new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"])),
+                                            new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt_Key"])),
                                             SecurityAlgorithms.HmacSha256)
             ));
 
+            //var token = new JwtSecurityTokenHandler().WriteToken(
+            //    new JwtSecurityToken(
+            //        issuer: _config["Jwt:Issuer"],
+            //        audience: _config["Jwt:Audience"],
+            //        claims: new[]
+            //        {
+            //            new Claim(ClaimTypes.Name, userCheck.Username),
+            //            new Claim(ClaimTypes.NameIdentifier, userCheck.Id.ToString()),
+            //            new Claim(ClaimTypes.Role, userCheck.Role.ToString())
+            //        },
+            //        expires: DateTime.UtcNow.AddHours(1),
+            //        signingCredentials: new SigningCredentials(
+            //            new SymmetricSecurityKey(
+            //                Encoding.UTF8.GetBytes(_config["Jwt_Key"]!)
+            //            ),
+            //            SecurityAlgorithms.HmacSha256
+            //        )
+            //    )
+            //);
 
-            
+
+
 
             return new AuthLoginResponseDto { 
                 Success = true, 
