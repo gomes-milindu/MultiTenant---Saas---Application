@@ -23,6 +23,13 @@ namespace WebApplication1.Repository.Impl
             await _context.SaveChangesAsync();
             return package;
         }
+
+        public async Task<Package?> GetPackagesByIdAsync(Guid id)
+        {
+            return await _context.Packages
+                .AsNoTracking()
+                .FirstOrDefaultAsync(p => p.Id == id);
+        }
     }
     
 }

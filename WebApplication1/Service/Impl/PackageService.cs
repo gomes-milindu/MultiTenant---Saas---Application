@@ -1,4 +1,5 @@
-﻿using WebApplication1.DTO;
+﻿using Microsoft.AspNetCore.Http.HttpResults;
+using WebApplication1.DTO;
 using WebApplication1.Models.Subscriptions;
 using WebApplication1.Repository.Interface;
 using WebApplication1.Service.Interface;
@@ -62,6 +63,35 @@ namespace WebApplication1.Service.Impl
                 IsActive = created.IsActive,
                 SortOrder = created.SortOrder,
                 CreatedAt = created.CreatedAt
+            };
+        }
+
+        public async Task<PackageResponseDto> GetPackagesByIdAsync(Guid id)
+        {
+            var getpackage = await packageRepository.GetPackagesByIdAsync(id);
+
+            if (getpackage == null)
+            {
+                throw new KeyNotFoundException($"Package with ID '{id}' was not found.");
+            }
+
+            return new PackageResponseDto
+            {
+                Id = getpackage.Id,
+                Code = getpackage.Code,
+                Name = getpackage.Name,
+                Description = getpackage.Description,
+                Price = getpackage.Price,
+                Currency = getpackage.Currency,
+                DurationDays = getpackage.DurationDays,
+                IsFree = getpackage.IsFree,
+                MaxStudents = getpackage.MaxStudents,
+                MaxClasses = getpackage.MaxClasses,
+                MaxBatches = getpackage.MaxBatches,
+                MaxRecordedLessons = getpackage.MaxRecordedLessons,
+                IsActive = getpackage.IsActive,
+                SortOrder = getpackage.SortOrder,
+                CreatedAt = getpackage.CreatedAt
             };
         }
     }

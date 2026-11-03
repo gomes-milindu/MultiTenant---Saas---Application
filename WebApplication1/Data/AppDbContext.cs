@@ -2,6 +2,7 @@
 using WebApplication1.Models.Academic;
 using WebApplication1.Models.Auth;
 using WebApplication1.Models.Subscriptions;
+using WebApplication1.Models.Subscrition;
 using WebApplication1.Models.System;
 
 namespace WebApplication1.Data
@@ -32,6 +33,8 @@ namespace WebApplication1.Data
         public DbSet<Enrollment> Enrollments => Set<Enrollment>();
 
         public DbSet<Package> Packages => Set<Package>();
+
+        public DbSet<TeacherPackage> TeacherPackages => Set<TeacherPackage>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -256,13 +259,31 @@ namespace WebApplication1.Data
 
             modelBuilder.Entity<Package>(entity =>
             {
-                entity.ToTable("Packages"); // 🟢 "Packages" ලෙස Capital 'P' අකුර භාවිත කරන්න
+                entity.ToTable("Packages"); 
                 entity.HasKey(p => p.Id);
 
                 entity.Property(p => p.Price).HasColumnType("decimal(18,2)");
 
-                // පැකේජ් කේතය (Code) සඳහා Unique Index එකක් යෙදීම
                 entity.HasIndex(p => p.Code).IsUnique();
+            });
+
+            modelBuilder.Entity<TeacherPackage>(entity =>
+            {
+                entity.ToTable("TeacherPackages");
+                entity.HasKey(tp => tp.Id);
+
+                entity.Property(tp => tp.PricePaid).HasColumnType("decimal(18,2)");
+
+                // Relationships
+                entity.HasOne(tp => tp.User)
+                      .WithMany()
+                      .HasForeignKey(tp => tp.UserId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(tp => tp.Package)
+                      .WithMany()
+                      .HasForeignKey(tp => tp.PackageId)
+                      .OnDelete(DeleteBehavior.Restrict);
             });
         }
     }

@@ -507,6 +507,44 @@ namespace WebApplication1.Migrations
                     b.ToTable("Packages", (string)null);
                 });
 
+            modelBuilder.Entity("WebApplication1.Models.Subscrition.TeacherPackage", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)");
+
+                    b.Property<DateTime>("ActivatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<DateTime>("ExpiresAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<Guid>("PackageId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<decimal>("PricePaid")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("varchar(20)");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("char(36)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PackageId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("TeacherPackages", (string)null);
+                });
+
             modelBuilder.Entity("WebApplication1.Models.System.AuditLog", b =>
                 {
                     b.Property<Guid>("Id")
@@ -729,6 +767,25 @@ namespace WebApplication1.Migrations
                         .HasForeignKey("WebApplication1.Models.Auth.UserProfile", "UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("WebApplication1.Models.Subscrition.TeacherPackage", b =>
+                {
+                    b.HasOne("WebApplication1.Models.Subscriptions.Package", "Package")
+                        .WithMany()
+                        .HasForeignKey("PackageId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("WebApplication1.Models.Auth.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Package");
 
                     b.Navigation("User");
                 });

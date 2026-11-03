@@ -6,5 +6,6 @@ namespace WebApplication1.Repository.Interface
     {
         Task<Package> CreateAsync(Package package);
         Task<bool> ExistsByCodeAsync(string trimmedCode);
+        Task<Package?> GetPackagesByIdAsync(Guid id);
     }
 }

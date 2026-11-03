@@ -18,7 +18,7 @@ namespace WebApplication1.Controllers
             this.packageService = packageService;
         }
 
-        [HttpPost]
+        [HttpPost("CreatePackages")]
         [Authorize(Roles = "SuperAdmin")]
         public async Task<IActionResult> Create([FromBody] CreatePackageDto dto)
         {
@@ -36,6 +36,33 @@ namespace WebApplication1.Controllers
                 return StatusCode(StatusCodes.Status201Created, new
                 {
                     message = "Package created successfully",
+                    data = result
+                });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpGet("GetPackages,{id:guid}")]
+        [Authorize(Roles = "SuperAdmin")]
+        public async Task<IActionResult> GetPackagesById(Guid id)
+        {
+
+            var idClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!Guid.TryParse(idClaim, out var currentUserId))
+            {
+                return Unauthorized(new { message = "Invalid token user identity." });
+            }
+
+            try
+            {
+                var result = await packageService.GetPackagesByIdAsync(id);
+
+                return StatusCode(StatusCodes.Status201Created, new
+                {
+                    message = "Retrieve package successfully",
                     data = result
                 });
             }

@@ -137,6 +137,8 @@ builder.Services.AddScoped<IEnrollmentRepository, EnrollmentRepository>();
 builder.Services.AddScoped<IEnrollmentService, EnrollmentService>();
 builder.Services.AddScoped<IPackageRepository, PackageRepository>();
 builder.Services.AddScoped<IPackageService, PackageService>();
+builder.Services.AddScoped<ITeacherPackageRepository, TeacherPackageRepository>();
+builder.Services.AddScoped<ITeacherPackageService, TeacherPackageService>();
 
 builder.Services.AddHttpClient();
 builder.Services.AddHttpContextAccessor();
