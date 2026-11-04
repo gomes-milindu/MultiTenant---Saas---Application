@@ -30,5 +30,17 @@ namespace WebApplication1.Repository.Impl
                                         && tp.Status == "ACTIVE"
                                         && tp.ExpiresAt > DateTime.UtcNow);
         }
+
+        public async Task<TeacherPackage?> GetByIdAsync(Guid userId)
+        {
+            return await _context.TeacherPackages
+        .Include(tp => tp.Package)
+        .FirstOrDefaultAsync(tp => tp.UserId == userId);
+        }
+        public async Task UpdateAsync(TeacherPackage teacherPackage)
+        {
+            _context.TeacherPackages.Update(teacherPackage);
+            await _context.SaveChangesAsync();
+        }
     }
 }

@@ -48,5 +48,53 @@ namespace WebApplication1.Controllers
                 return BadRequest(new { message = ex.Message });
             }
         }
+
+        [HttpPost("PaymentDone")]
+        [AllowAnonymous]
+        public async Task<IActionResult> PaymentSuccessWebhook([FromBody] PaymentWebhookDto payload)
+        {
+            // Gateway Signature (PayHere/Stripe) Verify in here
+
+            try
+            {
+                
+                var success = await teacherPackageService.ActivatePackageAsync(payload.TeacherPackageId);
+
+                if (success)
+                    return Ok(new { message = "Package activated successfully." });
+
+                return BadRequest(new { message = "Package not found or already active." });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Internal error during activation." });
+            }
+        }
+
+
+        [HttpGet("GetTeacherPackageById (Log as Teacher),{id:guid}")]
+        [Authorize(Roles = "Teacher")]
+        public async Task<IActionResult> GetTeacherPackageById(Guid id)
+        {
+            var idClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!Guid.TryParse(idClaim, out var currentUserId))
+            {
+                return Unauthorized(new { message = "Invalid token user identity." });
+            }
+
+            try
+            {
+                var result = await teacherPackageService.GetTeacherPackagesByIdAsync(id, currentUserId);
+                return Ok(result);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return StatusCode(StatusCodes.Status403Forbidden, new { message = ex.Message });
+            }
+        }
     }
 }

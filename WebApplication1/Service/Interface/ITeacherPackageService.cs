@@ -4,6 +4,8 @@ namespace WebApplication1.Service.Interface
 {
     public interface ITeacherPackageService
     {
+        Task<bool> ActivatePackageAsync(Guid teacherPackageId);
+        Task<TeacherPackageResponseDto> GetTeacherPackagesByIdAsync(Guid id, Guid currentUserId);
         Task<TeacherPackageResponseDto> SubscribeAsync(CreateTeacherPackageDto dto, Guid currentUserId);
     }
 }
