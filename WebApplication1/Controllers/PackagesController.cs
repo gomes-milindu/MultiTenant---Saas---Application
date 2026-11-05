@@ -45,31 +45,6 @@ namespace WebApplication1.Controllers
             }
         }
 
-        [HttpGet("GetPackages,{id:guid}")]
-        [Authorize(Roles = "SuperAdmin")]
-        public async Task<IActionResult> GetPackagesById(Guid id)
-        {
-
-            var idClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (!Guid.TryParse(idClaim, out var currentUserId))
-            {
-                return Unauthorized(new { message = "Invalid token user identity." });
-            }
-
-            try
-            {
-                var result = await packageService.GetPackagesByIdAsync(id);
-
-                return StatusCode(StatusCodes.Status201Created, new
-                {
-                    message = "Retrieve package successfully",
-                    data = result
-                });
-            }
-            catch (InvalidOperationException ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
-        }
+        
     }
 }

@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using WebApplication1.Data;
 using WebApplication1.Models.Academic;
+using WebApplication1.Models.Enums;
 using WebApplication1.Repository.Interface;
 
 namespace WebApplication1.Repository.Impl
@@ -39,6 +40,12 @@ namespace WebApplication1.Repository.Impl
         .Include(c => c.Teacher)
         .AsNoTracking()
         .FirstOrDefaultAsync(c => c.Id == classId);
+        }
+
+        public async Task<int> GetTotalClassesCountByTeacherAsync(Guid? teacherUserId)
+        {
+            return await _context.Classes.Include(c => c.Institute).Where(c => c.Institute.OwnerUserId == teacherUserId && c.Status == ClassStatus.Active)
+          .CountAsync();
         }
     }
 }

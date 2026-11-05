@@ -72,7 +72,7 @@ namespace WebApplication1.Controllers
         }
 
 
-        [HttpGet("GetTeacherPackageById (Log as Teacher),{id:guid}")]
+        [HttpGet("GetTeacherPackageById (Logging as a Teacher),{id:guid}")]
         [Authorize(Roles = "Teacher")]
         public async Task<IActionResult> GetTeacherPackageById(Guid id)
         {

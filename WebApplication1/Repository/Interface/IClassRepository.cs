@@ -7,5 +7,6 @@ namespace WebApplication1.Repository.Interface
         Task<bool> ExistsByTitleInBatchAsync(Guid batchId, Guid subjectId, string title);
         Task<Class> CreateAsync(Class newClass);
         Task<Class> GetByIdAsync(Guid classId);
+        Task<int> GetTotalClassesCountByTeacherAsync(Guid? teacherUserId);
     }
 }
