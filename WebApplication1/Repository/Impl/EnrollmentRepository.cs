@@ -43,5 +43,19 @@ namespace WebApplication1.Repository.Impl
 
             return enrollment;
         }
+
+        public async Task<int> GetTotalActiveStudentsCountByTeacherAsync(Guid teacherUserId)
+        {
+            return await _context.Enrollments
+            .Include(e => e.Class)
+            .Where(e => e.Class.TeacherUserId == teacherUserId && e.Status == EnrollmentStatus.Approved)
+            .CountAsync();
+        }
+
+        public async Task<bool> ExistsByStudentAndClassAsync(Guid studentUserId, Guid classId)
+        {
+            return await _context.Enrollments
+                .AnyAsync(e => e.StudentUserId == studentUserId && e.ClassId == classId);
+        }
     }
 }
