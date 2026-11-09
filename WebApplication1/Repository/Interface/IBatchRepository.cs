@@ -10,5 +10,6 @@ namespace WebApplication1.Repository.Interface
         Task<Batch?> GetByIdAsync(Guid id);
 
         Task<IEnumerable<Batch>> GetAllAsync();
+        Task<(IEnumerable<Batch> Batches, int TotalCount)> GetBatchesAndCountByTeacherAsync(Guid teacherId);
     }
 }

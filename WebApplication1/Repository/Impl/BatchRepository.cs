@@ -1,7 +1,8 @@
-﻿using WebApplication1.Data;
+﻿using Microsoft.EntityFrameworkCore;
+using WebApplication1.Data;
 using WebApplication1.Models.Academic;
+using WebApplication1.Models.Enums;
 using WebApplication1.Repository.Interface;
-using Microsoft.EntityFrameworkCore;
 
 namespace WebApplication1.Repository.Impl
 {
@@ -45,6 +46,23 @@ namespace WebApplication1.Repository.Impl
                 .OrderByDescending(b => b.CreatedAt)
                 .AsNoTracking()
                 .ToListAsync();
+        }
+
+        public async Task<(IEnumerable<Batch> Batches, int TotalCount)> GetBatchesAndCountByTeacherAsync(Guid teacherId)
+        {
+            var query = _context.Batches
+                .Include(b => b.Institute)
+                .Include(b => b.OwnerTeacher)
+                .Where(b => b.Institute.OwnerUserId == teacherId && b.Status == BatchStatus.Active);
+
+            var totalCount = await query.CountAsync();
+
+            var batches = await query
+                .OrderByDescending(b => b.CreatedAt)
+                .AsNoTracking()
+                .ToListAsync();
+
+            return (batches, totalCount);
         }
     }
 }

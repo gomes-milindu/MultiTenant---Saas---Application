@@ -1,4 +1,5 @@
 ﻿using WebApplication1.DTO;
+using WebApplication1.DTOs.Academic.Batch;
 using WebApplication1.Models.Academic;
 using WebApplication1.Models.Enums;
 using WebApplication1.Repository.Impl;
@@ -13,11 +14,13 @@ public class BatchService : IBatchService
 {
     private readonly IBatchRepository batchRepository;
     private readonly IInstituteRepository instituteRepository;
+    private readonly ITeacherPackageRepository teacherPackageRepository;
 
-    public BatchService(IBatchRepository batchRepository, IInstituteRepository instituteRepository )
+    public BatchService(IBatchRepository batchRepository, IInstituteRepository instituteRepository, ITeacherPackageRepository teacherPackageRepository)
     {
         this.batchRepository = batchRepository;
         this.instituteRepository = instituteRepository;
+        this.teacherPackageRepository = teacherPackageRepository;
     }
 
     public async Task<BatchResponseDto> CreateAsync(CreateBatchDto dto, Guid currentUserId, bool isAdmin)
@@ -54,13 +57,31 @@ public class BatchService : IBatchService
         }
         else
         {
-            // Teacher කෙනෙක් හදන විට Token ID එක Owner ලෙස පත් කරයි
             assignedTeacherId = currentUserId;
         }
 
         if (institute.OwnerUserId != assignedTeacherId)
         {
             throw new UnauthorizedAccessException("The owner of the batch must match the owner of the institute.");
+        }
+
+
+        var activePackage = await teacherPackageRepository.GetActivePackageByUserIdAsync(assignedTeacherId);
+        if (activePackage == null)
+        {
+            throw new InvalidOperationException("The teacher does not have an active subscription package to create a batch.");
+        }
+
+        if (activePackage.Package.MaxBatches.HasValue)
+        {
+            var limit = activePackage.Package.MaxBatches.Value;
+
+            var (batches, totalCount) = await batchRepository.GetBatchesAndCountByTeacherAsync(assignedTeacherId);
+
+            if (totalCount >= limit)
+            {
+                throw new InvalidOperationException($"Your package limit of {limit} batches has been reached. Please upgrade your package to create more.");
+            }
         }
 
         var trimmedName = dto.Name.Trim();
@@ -126,5 +147,42 @@ public class BatchService : IBatchService
             CreatedAt = b.CreatedAt,
             UpdatedAt = b.UpdatedAt
         });
+    }
+
+
+    public async Task<TeacherBatchListResponseDto> GetBatchesByTeacherAsync(Guid teacherId , Guid currentUserId, bool isAdmin)
+    {
+
+        if (!isAdmin && teacherId != currentUserId)
+        {
+            throw new UnauthorizedAccessException(
+        "You can get your own batch details only."
+    );
+        }
+
+        var (batches, totalCount) = await batchRepository.GetBatchesAndCountByTeacherAsync(teacherId);
+
+        var batchDtos = batches.Select(b => new BatchResponseDto
+        {
+            Id = b.Id,
+            InstituteId = b.InstituteId,
+            OwnerTeacherId = b.OwnerTeacherId,
+            OwnerTeacherUserName = b.OwnerTeacher?.Username ?? string.Empty,
+            Name = b.Name,
+            AcademicYear = b.AcademicYear,
+            Description = b.Description,
+            StartDate = b.StartDate,
+            EndDate = b.EndDate,
+            Status = b.Status,
+            CreatedByUserId = b.CreatedByUserId,
+            CreatedAt = b.CreatedAt,
+            UpdatedAt = b.UpdatedAt
+        });
+
+        return new TeacherBatchListResponseDto
+        {
+            TotalCount = totalCount,
+            Batches = batchDtos
+        };
     }
 }

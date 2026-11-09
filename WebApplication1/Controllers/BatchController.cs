@@ -21,6 +21,7 @@ namespace WebApplication1.Controllers
         }
 
         [HttpPost("CreateBatches")]
+        [Authorize(Roles = "SuperAdmin,Teacher")]
         public async Task<IActionResult> Create([FromBody] CreateBatchDto dto)
         {
             var idClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -57,12 +58,52 @@ namespace WebApplication1.Controllers
 
         //[HttpGet]
         //[Authorize(Roles = "SuperAdmin")] // 🔒 Super Admin ට පමණක් සීමා කර ඇත
-        
+
         //public async Task<IActionResult> GetAll()
         //{
         //    var batches = await batchService.GetAllAsync();
         //    return Ok(batches);
         //}
+
+
+
+        [HttpGet("GetTeacherBatchesAndCount")]
+        [Authorize(Roles = "SuperAdmin,Teacher")]
+        public async Task<IActionResult> GetBatchesByTeacher(Guid teacherId)
+        {
+            var idClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!Guid.TryParse(idClaim, out var currentUserId))
+            {
+                return Unauthorized(new { message = "Invalid token user identity." });
+            }
+
+            var isAdmin = User.IsInRole("SuperAdmin");
+
+            try
+            {
+                var result = await batchService.GetBatchesByTeacherAsync(teacherId, currentUserId, isAdmin);
+
+                return Ok(new
+                {
+                    message = "Batches retrieved successfully",
+                    count = result.TotalCount,
+                    data = result.Batches
+                });
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return StatusCode(StatusCodes.Status403Forbidden, new { message = ex.Message });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+
+        }
 
     }
 }
