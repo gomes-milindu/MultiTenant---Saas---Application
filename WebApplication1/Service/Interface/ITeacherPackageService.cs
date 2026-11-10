@@ -7,5 +7,6 @@ namespace WebApplication1.Service.Interface
         Task<bool> ActivatePackageAsync(Guid teacherPackageId);
         Task<TeacherPackageResponseDto> GetTeacherPackagesByIdAsync(Guid id, Guid currentUserId);
         Task<TeacherPackageResponseDto> SubscribeAsync(CreateTeacherPackageDto dto, Guid currentUserId);
+        Task<int> GetRemainingDaysAsync(Guid teacherId,Guid currentUserId, bool isAdmin);
     }
 }

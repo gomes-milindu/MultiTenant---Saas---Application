@@ -5,6 +5,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi; 
 using System.Text;
 using System.Threading.RateLimiting;
+using WebApplication1.BackgroundServices;
 using WebApplication1.Data;
 using WebApplication1.Repository.Impl;
 using WebApplication1.Repository.Interface;
@@ -139,6 +140,8 @@ builder.Services.AddScoped<IPackageRepository, PackageRepository>();
 builder.Services.AddScoped<IPackageService, PackageService>();
 builder.Services.AddScoped<ITeacherPackageRepository, TeacherPackageRepository>();
 builder.Services.AddScoped<ITeacherPackageService, TeacherPackageService>();
+
+builder.Services.AddHostedService<PackageExpirationBackgroundService>();
 
 builder.Services.AddHttpClient();
 builder.Services.AddHttpContextAccessor();

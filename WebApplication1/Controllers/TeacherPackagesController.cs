@@ -96,5 +96,42 @@ namespace WebApplication1.Controllers
                 return StatusCode(StatusCodes.Status403Forbidden, new { message = ex.Message });
             }
         }
+
+
+        [HttpGet("remaining-days")]
+        [Authorize(Roles = "Teacher,SuperAdmin")]
+        public async Task<IActionResult> GetRemainingDays([FromQuery] Guid? teacherId)
+        {
+            var idClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!Guid.TryParse(idClaim, out var currentUserId))
+            {
+                return Unauthorized(new { message = "Invalid token user identity." });
+            }
+
+            var isAdmin = User.IsInRole("SuperAdmin");
+
+            if (isAdmin && (teacherId is null || teacherId == Guid.Empty))
+            {
+                return BadRequest(new { message = "teacherId is required for super admin." });
+            }
+
+            try
+            {
+                var remainingDays = await teacherPackageService.GetRemainingDaysAsync(teacherId ?? Guid.Empty, currentUserId, isAdmin);
+
+                return Ok(new
+                {
+                    success = true,
+                    remainingDays,
+                    message = remainingDays > 0 ? $"{remainingDays} day(s) remaining for the package.": "The package has expired or there is no active package."
+                });
+            }
+            catch (Exception)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    new { message = "An unexpected error occurred." });
+            }
+        }
+
     }
 }

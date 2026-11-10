@@ -120,5 +120,31 @@ namespace WebApplication1.Service.Impl
                 PricePaid = teacherPackage.PricePaid
             };
         }
+
+
+        public async Task<int> GetRemainingDaysAsync(Guid teacherId, Guid currentUserId, bool isAdmin)
+        {
+            if (isAdmin)
+            {
+                if(isAdmin.Ro)
+            }
+            // 1. ගුරුවරයාගේ Active පැකේජය ලබාගැනීම
+            var activePackage = await teacherPackageRepository.GetActivePackageByUserIdAsync(currentUserId);
+
+            if (activePackage == null)
+            {
+                return 0; // Active පැකේජයක් නොමැත
+            }
+
+            var now = DateTime.UtcNow;
+
+            // 2. ExpiresAt සහ වර්තමාන වේලාව අතර කාල වෙනස ගණනය කිරීම
+            var remainingTime = activePackage.ExpiresAt - now;
+
+            // 3. දින ගණන (Days) ලෙස ලබා ගැනීම (අඩුම තරමින් 0 ට වැඩි විය යුතුය)
+            int remainingDays = (int)Math.Ceiling(remainingTime.TotalDays);
+
+            return remainingDays > 0 ? remainingDays : 0;
+        }
     }
 }
