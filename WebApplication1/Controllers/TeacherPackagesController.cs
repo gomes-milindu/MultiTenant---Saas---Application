@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Superpower.Model;
 using System.Security.Claims;
 using WebApplication1.DTO;
 
@@ -98,7 +99,7 @@ namespace WebApplication1.Controllers
         }
 
 
-        [HttpGet("remaining-days")]
+        [HttpGet("GetRemainingDays")]
         [Authorize(Roles = "Teacher,SuperAdmin")]
         public async Task<IActionResult> GetRemainingDays([FromQuery] Guid? teacherId)
         {
@@ -122,8 +123,10 @@ namespace WebApplication1.Controllers
                 return Ok(new
                 {
                     success = true,
-                    remainingDays,
-                    message = remainingDays > 0 ? $"{remainingDays} day(s) remaining for the package.": "The package has expired or there is no active package."
+                    PackageName = remainingDays.PackageName,
+                    remainingDays = remainingDays.RemainingDays,
+                    totalDays = remainingDays.TotalDays,
+                    message = remainingDays.RemainingDays > 0 ? $"{remainingDays.RemainingDays} day(s) remaining for the package.": "The package has expired or there is no active package."
                 });
             }
             catch (Exception)

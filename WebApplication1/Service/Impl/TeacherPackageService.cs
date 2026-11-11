@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http.HttpResults;
 using WebApplication1.DTO;
 using WebApplication1.Models.Enums;
+using WebApplication1.Models.Subscriptions;
 using WebApplication1.Models.Subscrition;
 using WebApplication1.Repository.Impl;
 using WebApplication1.Repository.Interface;
@@ -122,29 +123,41 @@ namespace WebApplication1.Service.Impl
         }
 
 
-        public async Task<int> GetRemainingDaysAsync(Guid teacherId, Guid currentUserId, bool isAdmin)
+        public async Task<RemainingDaysDto> GetRemainingDaysAsync(Guid teacherId, Guid currentUserId, bool isAdmin)
         {
-            if (isAdmin)
+         
+            if (isAdmin && teacherId == Guid.Empty)
             {
-                if(isAdmin.Ro)
+                throw new ArgumentException("Teacher ID is required for admin requests.", nameof(teacherId));
             }
-            // 1. ගුරුවරයාගේ Active පැකේජය ලබාගැනීම
-            var activePackage = await teacherPackageRepository.GetActivePackageByUserIdAsync(currentUserId);
 
+            var targetUserId = isAdmin ? teacherId : currentUserId;
+
+            var activePackage = await teacherPackageRepository.GetActivePackageByUserIdAsync(targetUserId);
+  
             if (activePackage == null)
             {
-                return 0; // Active පැකේජයක් නොමැත
+                return new RemainingDaysDto
+                {
+                    PackageName = string.Empty,
+                    RemainingDays = 0,
+                    TotalDays = 0
+                };
             }
 
-            var now = DateTime.UtcNow;
+            var totalDays = await packageRepository.GetPackagesByIdAsync(activePackage.PackageId);
 
-            // 2. ExpiresAt සහ වර්තමාන වේලාව අතර කාල වෙනස ගණනය කිරීම
-            var remainingTime = activePackage.ExpiresAt - now;
+            var remainingTime = activePackage.ExpiresAt - DateTime.UtcNow;
 
-            // 3. දින ගණන (Days) ලෙස ලබා ගැනීම (අඩුම තරමින් 0 ට වැඩි විය යුතුය)
-            int remainingDays = (int)Math.Ceiling(remainingTime.TotalDays);
 
-            return remainingDays > 0 ? remainingDays : 0;
+            var remainingDays = (int)Math.Ceiling(remainingTime.TotalDays);
+
+            return new RemainingDaysDto
+            {
+                PackageName = totalDays.Code ?? string.Empty,
+                RemainingDays = remainingDays,
+                TotalDays = totalDays.DurationDays
+            };
         }
     }
 }
