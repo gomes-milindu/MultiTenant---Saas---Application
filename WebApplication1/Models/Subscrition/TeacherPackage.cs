@@ -31,6 +31,12 @@ public class TeacherPackage
 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
+    public bool FirstReminderSent { get; set; } = false;
+
+    public bool SecondReminderSent { get; set; } = false;
+
+    public bool ExpirationEmailSent { get; set; } = false;
+
     [ForeignKey(nameof(UserId))]
     public User User { get; set; } = null!;
 

@@ -36,6 +36,9 @@ namespace WebApplication1.Data
 
         public DbSet<TeacherPackage> TeacherPackages => Set<TeacherPackage>();
 
+        public DbSet<PackageReminderSetting> PackageReminderSettings => Set<PackageReminderSetting>();
+        public DbSet<PackageReminderTargetTeacher> PackageReminderTargetTeachers => Set<PackageReminderTargetTeacher>();
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
 

@@ -8,5 +8,6 @@ namespace WebApplication1.Repository.Interface
         Task<TeacherPackage?> GetActivePackageByUserIdAsync(Guid userId);
         Task<TeacherPackage?> GetByIdAsync(Guid teacherPackageId);
         Task UpdateAsync(TeacherPackage teacherPackage);
+        Task<PackageReminderSetting?> GetSettingsAsync();
     }
 }

@@ -507,6 +507,57 @@ namespace WebApplication1.Migrations
                     b.ToTable("Packages", (string)null);
                 });
 
+            modelBuilder.Entity("WebApplication1.Models.Subscrition.PackageReminderSetting", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)");
+
+                    b.Property<bool>("EnableExpirationEmail")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<bool>("EnableFirstReminder")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<bool>("EnableSecondReminder")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<int>("FirstReminderDaysBefore")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsEnabled")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<int>("SecondReminderDaysBefore")
+                        .HasColumnType("int");
+
+                    b.Property<string>("TargetScope")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("varchar(20)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("PackageReminderSettings");
+                });
+
+            modelBuilder.Entity("WebApplication1.Models.Subscrition.PackageReminderTargetTeacher", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)");
+
+                    b.Property<Guid>("TeacherUserId")
+                        .HasColumnType("char(36)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("PackageReminderTargetTeachers");
+                });
+
             modelBuilder.Entity("WebApplication1.Models.Subscrition.TeacherPackage", b =>
                 {
                     b.Property<Guid>("Id")
@@ -519,14 +570,23 @@ namespace WebApplication1.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime(6)");
 
+                    b.Property<bool>("ExpirationEmailSent")
+                        .HasColumnType("tinyint(1)");
+
                     b.Property<DateTime>("ExpiresAt")
                         .HasColumnType("datetime(6)");
+
+                    b.Property<bool>("FirstReminderSent")
+                        .HasColumnType("tinyint(1)");
 
                     b.Property<Guid>("PackageId")
                         .HasColumnType("char(36)");
 
                     b.Property<decimal>("PricePaid")
                         .HasColumnType("decimal(18,2)");
+
+                    b.Property<bool>("SecondReminderSent")
+                        .HasColumnType("tinyint(1)");
 
                     b.Property<string>("Status")
                         .IsRequired()

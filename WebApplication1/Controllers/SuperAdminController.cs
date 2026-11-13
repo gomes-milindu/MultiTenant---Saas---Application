@@ -14,12 +14,14 @@ namespace WebApplication1.Controllers
     {
         private readonly IBatchService batchService;
         private readonly IPackageService packageService;
+        private readonly ITeacherPackageService teacherPackageService;
 
         // Constructor Injection
-        public SuperAdminController(IBatchService batchService, IPackageService packageService)
+        public SuperAdminController(IBatchService batchService, IPackageService packageService, ITeacherPackageService teacherPackageService)
         {
             this.batchService = batchService;
             this.packageService = packageService;
+            this.teacherPackageService = teacherPackageService;
         }
 
         [HttpGet("GetAllBatches")]
@@ -30,7 +32,6 @@ namespace WebApplication1.Controllers
         }
 
         [HttpGet("GetPackages,{id:guid}")]
-        [Authorize(Roles = "SuperAdmin")]
         public async Task<IActionResult> GetPackagesById(Guid id)
         {
 
@@ -54,6 +55,14 @@ namespace WebApplication1.Controllers
             {
                 return BadRequest(new { message = ex.Message });
             }
+        }
+
+
+        [HttpGet("settings")]
+        public async Task<IActionResult> GetSettings()
+        {
+            var result = await teacherPackageService.GetSettingsAsync();
+            return Ok(result);
         }
     }
 }

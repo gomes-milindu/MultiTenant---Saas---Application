@@ -159,5 +159,31 @@ namespace WebApplication1.Service.Impl
                 TotalDays = totalDays.DurationDays
             };
         }
+
+        public async Task<ReminderSettingsResponseDto> GetSettingsAsync()
+        {
+            var settings = await teacherPackageRepository.GetSettingsAsync();
+
+            if (settings == null)
+            {
+                settings = new PackageReminderSetting
+                {
+                    Id = Guid.NewGuid(),
+                    IsEnabled = true,
+                    EnableFirstReminder = true,
+                    FirstReminderDaysBefore = 5,
+                    EnableSecondReminder = true,
+                    SecondReminderDaysBefore = 2,
+                    EnableExpirationEmail = true,
+                    TargetScope = "ALL",
+                    UpdatedAt = DateTime.UtcNow
+                };
+                settings = await teacherPackageRepository.CreateSettingsAsync(settings);
+            }
+
+            var teacherIds = await teacherPackageRepository.GetTargetTeacherIdsAsync();
+
+            return MapToDto(settings, teacherIds);
+        }
     }
 }
