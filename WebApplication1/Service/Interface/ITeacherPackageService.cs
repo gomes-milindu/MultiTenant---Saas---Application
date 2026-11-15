@@ -9,5 +9,6 @@ namespace WebApplication1.Service.Interface
         Task<TeacherPackageResponseDto> SubscribeAsync(CreateTeacherPackageDto dto, Guid currentUserId);
         Task<RemainingDaysDto> GetRemainingDaysAsync(Guid teacherId,Guid currentUserId, bool isAdmin);
         Task<ReminderSettingsResponseDto> GetSettingsAsync();
+        Task<ReminderSettingsResponseDto> UpdateSettingsAsync(UpdateReminderSettingsDto dto);
     }
 }

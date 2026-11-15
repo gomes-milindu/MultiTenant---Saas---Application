@@ -9,5 +9,9 @@ namespace WebApplication1.Repository.Interface
         Task<TeacherPackage?> GetByIdAsync(Guid teacherPackageId);
         Task UpdateAsync(TeacherPackage teacherPackage);
         Task<PackageReminderSetting?> GetSettingsAsync();
+        Task<PackageReminderSetting> CreateSettingsAsync(PackageReminderSetting settings);
+        Task<List<Guid>> GetTargetTeacherIdsAsync();
+        Task ReplaceTargetTeachersAsync(IEnumerable<Guid> teacherIds);
+        Task UpdateSettingsAsync(PackageReminderSetting settings);
     }
 }

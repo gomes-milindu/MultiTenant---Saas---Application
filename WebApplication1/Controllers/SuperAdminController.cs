@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+using WebApplication1.DTO;
 using WebApplication1.Service.Impl;
 using WebApplication1.Service.Interface;
 
@@ -58,11 +59,36 @@ namespace WebApplication1.Controllers
         }
 
 
-        [HttpGet("settings")]
+        [HttpGet("GetReminderEmailSettings")]
         public async Task<IActionResult> GetSettings()
         {
             var result = await teacherPackageService.GetSettingsAsync();
             return Ok(result);
+        }
+
+
+        [HttpPut("UpdateReminderEmailSettings")]
+        
+        public async Task<IActionResult> UpdateSettings([FromBody] UpdateReminderSettingsDto dto)
+        {
+            try
+            {
+                var result = await teacherPackageService.UpdateSettingsAsync(dto);
+                return Ok(new
+                {
+                    success = true,
+                    message = "Package reminder settings updated successfully.",
+                    data = result
+                });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = ex.Message });
+            }
         }
     }
 }

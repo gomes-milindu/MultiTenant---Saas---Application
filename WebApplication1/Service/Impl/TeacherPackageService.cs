@@ -6,6 +6,7 @@ using WebApplication1.Models.Subscrition;
 using WebApplication1.Repository.Impl;
 using WebApplication1.Repository.Interface;
 using WebApplication1.Service.Interface;
+using WebApplication1.Extensions;
 
 namespace WebApplication1.Service.Impl
 {
@@ -183,7 +184,57 @@ namespace WebApplication1.Service.Impl
 
             var teacherIds = await teacherPackageRepository.GetTargetTeacherIdsAsync();
 
-            return MapToDto(settings, teacherIds);
+            return settings.ToDto(teacherIds);
+        }
+
+
+        public async Task<ReminderSettingsResponseDto> UpdateSettingsAsync(UpdateReminderSettingsDto dto)
+        {
+            if (dto.EnableFirstReminder && dto.EnableSecondReminder &&
+                dto.FirstReminderDaysBefore <= dto.SecondReminderDaysBefore)
+            {
+                throw new InvalidOperationException(
+                    "FirstReminderDaysBefore must be greater than SecondReminderDaysBefore (e.g., 5 days and 2 days).");
+            }
+
+            if (dto.TargetScope == "SPECIFIC" && (dto.TeacherIds == null || !dto.TeacherIds.Any()))
+            {
+                throw new InvalidOperationException(
+                    "You must provide at least one TeacherId when TargetScope is 'SPECIFIC'.");
+            }
+
+            var settings = await teacherPackageRepository.GetSettingsAsync();
+            bool isNew = false;
+
+            if (settings == null)
+            {
+                settings = new PackageReminderSetting { Id = Guid.NewGuid() };
+                isNew = true;
+            }
+
+            settings.IsEnabled = dto.IsEnabled;
+            settings.EnableFirstReminder = dto.EnableFirstReminder;
+            settings.FirstReminderDaysBefore = dto.FirstReminderDaysBefore;
+            settings.EnableSecondReminder = dto.EnableSecondReminder;
+            settings.SecondReminderDaysBefore = dto.SecondReminderDaysBefore;
+            settings.EnableExpirationEmail = dto.EnableExpirationEmail;
+            settings.TargetScope = dto.TargetScope;
+            settings.UpdatedAt = DateTime.UtcNow;
+
+            if (isNew)
+                await teacherPackageRepository.CreateSettingsAsync(settings);
+            else
+                await teacherPackageRepository.UpdateSettingsAsync(settings);
+
+            var targetIds = dto.TargetScope == "SPECIFIC" && dto.TeacherIds != null
+                ? dto.TeacherIds
+                : Enumerable.Empty<Guid>();
+
+            await teacherPackageRepository.ReplaceTargetTeachersAsync(targetIds);
+
+            var savedTeacherIds = await teacherPackageRepository.GetTargetTeacherIdsAsync();
+
+            return settings.ToDto(savedTeacherIds);
         }
     }
 }

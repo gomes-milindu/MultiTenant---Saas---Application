@@ -74,7 +74,7 @@ namespace WebApplication1.Controllers
 
 
         [HttpGet("GetTeacherPackageById")]
-        [Authorize(Roles = "Teacher")]
+        [Authorize(Roles = "Teacher,Super")]
         public async Task<IActionResult> GetTeacherPackageById(Guid id)
         {
             var idClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
