@@ -142,6 +142,7 @@ builder.Services.AddScoped<ITeacherPackageRepository, TeacherPackageRepository>(
 builder.Services.AddScoped<ITeacherPackageService, TeacherPackageService>();
 
 builder.Services.AddHostedService<PackageExpirationBackgroundService>();
+builder.Services.AddHostedService<PackageReminderBackgroundService>();
 
 builder.Services.AddHttpClient();
 builder.Services.AddHttpContextAccessor();
