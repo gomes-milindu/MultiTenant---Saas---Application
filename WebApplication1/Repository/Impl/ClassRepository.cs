@@ -34,12 +34,12 @@ namespace WebApplication1.Repository.Impl
         public async Task<Class> GetByIdAsync(Guid classId)
         {
             return await _context.Classes
-        .Include(c => c.Institute)
-        .Include(c => c.Batch)
-        .Include(c => c.Subject)
-        .Include(c => c.Teacher)
-        .AsNoTracking()
-        .FirstOrDefaultAsync(c => c.Id == classId);
+                        .Include(c => c.Institute)
+                        .Include(c => c.Batch)
+                        .Include(c => c.Subject)
+                        .Include(c => c.Teacher)
+                        .AsNoTracking()
+                        .FirstOrDefaultAsync(c => c.Id == classId);
         }
 
         public async Task<int> GetTotalClassesCountByTeacherAsync(Guid? teacherUserId)
