@@ -605,6 +605,49 @@ namespace WebApplication1.Migrations
                     b.ToTable("TeacherPackages", (string)null);
                 });
 
+            modelBuilder.Entity("WebApplication1.Models.System.AdminTeacherBroadcastLog", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("Channel")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("varchar(20)");
+
+                    b.Property<string>("MessageBody")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<DateTime>("SentAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<Guid>("SentBySuperAdminId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("Subject")
+                        .HasMaxLength(200)
+                        .HasColumnType("varchar(200)");
+
+                    b.Property<string>("TargetScope")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("varchar(20)");
+
+                    b.Property<int>("TotalEmailsSent")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TotalSmsSent")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SentBySuperAdminId");
+
+                    b.ToTable("SuperAdminMsg");
+                });
+
             modelBuilder.Entity("WebApplication1.Models.System.AuditLog", b =>
                 {
                     b.Property<Guid>("Id")
@@ -848,6 +891,17 @@ namespace WebApplication1.Migrations
                     b.Navigation("Package");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("WebApplication1.Models.System.AdminTeacherBroadcastLog", b =>
+                {
+                    b.HasOne("WebApplication1.Models.Auth.User", "SentBySuperAdmin")
+                        .WithMany()
+                        .HasForeignKey("SentBySuperAdminId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("SentBySuperAdmin");
                 });
 
             modelBuilder.Entity("WebApplication1.Models.Academic.Class", b =>
