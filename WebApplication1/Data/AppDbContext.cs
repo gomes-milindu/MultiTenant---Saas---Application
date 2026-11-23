@@ -38,6 +38,9 @@ namespace WebApplication1.Data
 
         public DbSet<PackageReminderSetting> PackageReminderSettings => Set<PackageReminderSetting>();
         public DbSet<PackageReminderTargetTeacher> PackageReminderTargetTeachers => Set<PackageReminderTargetTeacher>();
+        public DbSet<TeacherProfile> TeacherProfiles => Set<TeacherProfile>();
+
+        public DbSet<AdminTeacherBroadcastLog> AdminTeacherBroadcastLogs => Set<AdminTeacherBroadcastLog>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -287,6 +290,26 @@ namespace WebApplication1.Data
                       .WithMany()
                       .HasForeignKey(tp => tp.PackageId)
                       .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            modelBuilder.Entity<TeacherProfile>(entity =>
+            {
+                entity.ToTable("TeacherProfiles");
+                entity.HasKey(tp => tp.UserId);
+
+                entity.Property(tp => tp.ProfilePictureUrl).HasMaxLength(500);
+                entity.Property(tp => tp.QrCodeImageUrl).IsRequired().HasMaxLength(500);
+                entity.Property(tp => tp.QrTargetLink).IsRequired().HasMaxLength(300);
+                entity.Property(tp => tp.Subject).IsRequired().HasMaxLength(100);
+                entity.Property(tp => tp.TeachingLevel).IsRequired();
+                entity.Property(tp => tp.Qualifications).HasMaxLength(200);
+                entity.Property(tp => tp.Bio).HasMaxLength(1000);
+
+                // Users table එක සමඟ 1-to-1 සම්බන්ධතාවය
+                entity.HasOne(tp => tp.User)
+                      .WithOne()
+                      .HasForeignKey<TeacherProfile>(tp => tp.UserId)
+                      .OnDelete(DeleteBehavior.Cascade);
             });
         }
     }

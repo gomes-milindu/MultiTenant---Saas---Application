@@ -12,8 +12,8 @@ using WebApplication1.Data;
 namespace WebApplication1.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20261113061708_AddMultiStagePackageReminders")]
-    partial class AddMultiStagePackageReminders
+    [Migration("20261121181904_InitialRailwaySetup")]
+    partial class InitialRailwaySetup
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -330,6 +330,52 @@ namespace WebApplication1.Migrations
                     b.ToTable("ForgotPassword");
                 });
 
+            modelBuilder.Entity("WebApplication1.Models.Auth.TeacherProfile", b =>
+                {
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("Bio")
+                        .HasMaxLength(1000)
+                        .HasColumnType("varchar(1000)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("ProfilePictureUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)");
+
+                    b.Property<string>("QrCodeImageUrl")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)");
+
+                    b.Property<string>("QrTargetLink")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("varchar(300)");
+
+                    b.Property<string>("Qualifications")
+                        .HasMaxLength(200)
+                        .HasColumnType("varchar(200)");
+
+                    b.Property<string>("Subject")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
+
+                    b.Property<int>("TeachingLevel")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.HasKey("UserId");
+
+                    b.ToTable("TeacherProfiles", (string)null);
+                });
+
             modelBuilder.Entity("WebApplication1.Models.Auth.User", b =>
                 {
                     b.Property<Guid>("Id")
@@ -608,6 +654,49 @@ namespace WebApplication1.Migrations
                     b.ToTable("TeacherPackages", (string)null);
                 });
 
+            modelBuilder.Entity("WebApplication1.Models.System.AdminTeacherBroadcastLog", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("Channel")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("varchar(20)");
+
+                    b.Property<string>("MessageBody")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<DateTime>("SentAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<Guid>("SentBySuperAdminId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("Subject")
+                        .HasMaxLength(200)
+                        .HasColumnType("varchar(200)");
+
+                    b.Property<string>("TargetScope")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("varchar(20)");
+
+                    b.Property<int>("TotalEmailsSent")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TotalSmsSent")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SentBySuperAdminId");
+
+                    b.ToTable("SuperAdminMsg");
+                });
+
             modelBuilder.Entity("WebApplication1.Models.System.AuditLog", b =>
                 {
                     b.Property<Guid>("Id")
@@ -812,6 +901,17 @@ namespace WebApplication1.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("WebApplication1.Models.Auth.TeacherProfile", b =>
+                {
+                    b.HasOne("WebApplication1.Models.Auth.User", "User")
+                        .WithOne()
+                        .HasForeignKey("WebApplication1.Models.Auth.TeacherProfile", "UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("WebApplication1.Models.Auth.UserCredential", b =>
                 {
                     b.HasOne("WebApplication1.Models.Auth.User", "User")
@@ -851,6 +951,17 @@ namespace WebApplication1.Migrations
                     b.Navigation("Package");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("WebApplication1.Models.System.AdminTeacherBroadcastLog", b =>
+                {
+                    b.HasOne("WebApplication1.Models.Auth.User", "SentBySuperAdmin")
+                        .WithMany()
+                        .HasForeignKey("SentBySuperAdminId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("SentBySuperAdmin");
                 });
 
             modelBuilder.Entity("WebApplication1.Models.Academic.Class", b =>

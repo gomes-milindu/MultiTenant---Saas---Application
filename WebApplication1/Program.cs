@@ -7,18 +7,23 @@ using System.Text;
 using System.Threading.RateLimiting;
 using WebApplication1.BackgroundServices;
 using WebApplication1.Data;
+using WebApplication1.Repository.Auth.Impl;
 using WebApplication1.Repository.Impl;
 using WebApplication1.Repository.Interface;
 using WebApplication1.Service.Academic.Impl;
+using WebApplication1.Service.Auth.Impl;
 using WebApplication1.Service.Impl;
 using WebApplication1.Service.Interface;
+using WebApplication1.Service.Storage.Impl;
+
 
 DotNetEnv.Env.Load();
 var builder = WebApplication.CreateBuilder(args);
 
 // 1. Connection string resolution
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
-    ?? throw new InvalidOperationException("Connection string 'DefaultConnection' was not found.");
+var connectionString = Environment.GetEnvironmentVariable("DB_CONNECTION_STRING")
+    ?? builder.Configuration.GetConnectionString("MySqlConnection")
+    ?? throw new InvalidOperationException("Connection string 'MySqlConnection' was not found.");
 
 // 2. EF Core - MySQL Configuration
 builder.Services.AddDbContext<AppDbContext>(options =>
@@ -140,6 +145,10 @@ builder.Services.AddScoped<IPackageRepository, PackageRepository>();
 builder.Services.AddScoped<IPackageService, PackageService>();
 builder.Services.AddScoped<ITeacherPackageRepository, TeacherPackageRepository>();
 builder.Services.AddScoped<ITeacherPackageService, TeacherPackageService>();
+builder.Services.AddScoped<ITeacherProfileRepository, TeacherProfileRepository>();
+builder.Services.AddScoped<ITeacherProfileService, TeacherProfileService>();
+builder.Services.AddHttpClient<IFileStorageService, SupabaseStorageService>();
+
 
 builder.Services.AddHostedService<PackageExpirationBackgroundService>();
 builder.Services.AddHostedService<PackageReminderBackgroundService>();

@@ -11,7 +11,7 @@ public class PackageExpirationBackgroundService : BackgroundService
     private readonly IServiceScopeFactory scopeFactory;
     private readonly ILogger<PackageExpirationBackgroundService> logger;
 
-    private readonly TimeSpan _checkInterval = TimeSpan.FromSeconds(5);
+    private readonly TimeSpan _checkInterval = TimeSpan.FromHours(24);
 
     public PackageExpirationBackgroundService(IServiceScopeFactory scopeFactory, ILogger<PackageExpirationBackgroundService> logger)
     {

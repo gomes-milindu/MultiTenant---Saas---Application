@@ -16,6 +16,7 @@ namespace WebApplication1.Controllers
         private readonly IBatchService batchService;
         private readonly IPackageService packageService;
         private readonly ITeacherPackageService teacherPackageService;
+        private readonly IAdminMessagingService adminMessagingService;
 
         // Constructor Injection
         public SuperAdminController(IBatchService batchService, IPackageService packageService, ITeacherPackageService teacherPackageService)
@@ -88,6 +89,28 @@ namespace WebApplication1.Controllers
             catch (Exception ex)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, new { message = ex.Message });
+            }
+        }
+
+        [HttpPost("SendMsgtoTeachers")]
+        public async Task<IActionResult> SendToTeachers([FromBody] SendAdminTeacherMessageDto dto)
+        {
+            var idClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!Guid.TryParse(idClaim, out var superAdminId))
+                return Unauthorized(new { message = "Invalid token user identity." });
+
+            try
+            {
+                var result = await adminMessagingService.BroadcastToTeachersAsync(dto, superAdminId);
+                return Ok(result);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
             }
         }
     }
