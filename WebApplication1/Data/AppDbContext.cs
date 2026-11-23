@@ -42,6 +42,8 @@ namespace WebApplication1.Data
 
         public DbSet<AdminTeacherBroadcastLog> AdminTeacherBroadcastLogs => Set<AdminTeacherBroadcastLog>();
 
+        public DbSet<AdminTeacherBroadcastLog> AdminTeacherBroadcastLogs => Set<AdminTeacherBroadcastLog>();
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
 
