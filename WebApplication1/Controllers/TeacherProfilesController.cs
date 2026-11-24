@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using WebApplication1.DTO;
+using WebApplication1.Service.Auth.Impl;
 using WebApplication1.Service.Interface;
 namespace WebApplication1.Controllers
 {
@@ -17,7 +18,7 @@ namespace WebApplication1.Controllers
             this.teacherProfileService = teacherProfileService;
         }
 
-        [HttpPost("TeacherProfileCreate")]
+        [HttpPost("TeacherProfileCreateAndUpdate")]
         [Authorize(Roles = "Teacher,SuperAdmin")]
         public async Task<IActionResult> CreateOrUpdateMyProfile([FromForm] TeacherProfileDto dto)
         {
@@ -55,6 +56,42 @@ namespace WebApplication1.Controllers
             {
                 return BadRequest(new { message = ex.Message });
             }
+        }
+
+
+        [HttpGet("GetTeacherProfile")]
+        [Authorize(Roles = "Teacher,SuperAdmin")]
+        public async Task<IActionResult> GetTeacherProfile([FromQuery] Guid? teacherId)
+        {
+            var idClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!Guid.TryParse(idClaim, out var currentUserId))
+            {
+                return Unauthorized(new { message = "Invalid token user identity." });
+            }
+
+            var isSuperAdmin = User.IsInRole("SuperAdmin");
+            Guid targetTeacherId;
+
+            if (isSuperAdmin)
+            {
+                if (!teacherId.HasValue || teacherId.Value == Guid.Empty)
+                {
+                    return BadRequest(new { message = "Teacher ID is required when viewing as SuperAdmin." });
+                }
+                targetTeacherId = teacherId.Value;
+            }
+            else
+            {
+                targetTeacherId = currentUserId;
+            }
+
+            var result = await teacherProfileService.GetByTeacherIdAsync(targetTeacherId);
+            if (result == null)
+            {
+                return NotFound(new { message = "Teacher profile not found." });
+            }
+
+            return Ok(result);
         }
     }
 }

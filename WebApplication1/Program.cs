@@ -8,10 +8,12 @@ using System.Threading.RateLimiting;
 using WebApplication1.BackgroundServices;
 using WebApplication1.Data;
 using WebApplication1.Repository.Auth.Impl;
+using WebApplication1.Repository.Communication.Impl;
 using WebApplication1.Repository.Impl;
 using WebApplication1.Repository.Interface;
 using WebApplication1.Service.Academic.Impl;
 using WebApplication1.Service.Auth.Impl;
+using WebApplication1.Service.Communication.Impl;
 using WebApplication1.Service.Impl;
 using WebApplication1.Service.Interface;
 using WebApplication1.Service.Storage.Impl;
@@ -149,7 +151,10 @@ builder.Services.AddScoped<ITeacherProfileRepository, TeacherProfileRepository>(
 builder.Services.AddScoped<ITeacherProfileService, TeacherProfileService>();
 builder.Services.AddHttpClient<IFileStorageService, SupabaseStorageService>();
 
+builder.Services.AddScoped<IAdminMessagingRepository, AdminMessagingRepository>();
 
+// Service registration (මේක දැනටමත් ඇති)
+builder.Services.AddScoped<IAdminMessagingService, AdminMessagingService>();
 builder.Services.AddHostedService<PackageExpirationBackgroundService>();
 builder.Services.AddHostedService<PackageReminderBackgroundService>();
 

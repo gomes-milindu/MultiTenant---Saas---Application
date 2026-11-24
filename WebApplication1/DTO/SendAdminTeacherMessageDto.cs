@@ -1,17 +1,16 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using WebApplication1.Models.Enums;
 
 namespace WebApplication1.DTO
 {
     public class SendAdminTeacherMessageDto
     {
-        
-        [Required]
-        [RegularExpression("^(EMAIL|SMS|BOTH)$", ErrorMessage = "Channel must be EMAIL, SMS, or BOTH.")]
-        public string Channel { get; set; } = "EMAIL";
 
         [Required]
-        [RegularExpression("^(ALL|SPECIFIC)$", ErrorMessage = "TargetScope must be ALL or SPECIFIC.")]
-        public string TargetScope { get; set; } = "ALL";
+        public MessageChannel Channel { get; set; } = MessageChannel.EMAIL;
+
+        [Required]
+        public TargetScopeType TargetScope { get; set; } = TargetScopeType.ALL;
 
         public List<Guid>? TeacherIds { get; set; }
 

@@ -19,11 +19,12 @@ namespace WebApplication1.Controllers
         private readonly IAdminMessagingService adminMessagingService;
 
         // Constructor Injection
-        public SuperAdminController(IBatchService batchService, IPackageService packageService, ITeacherPackageService teacherPackageService)
+        public SuperAdminController(IBatchService batchService, IPackageService packageService, ITeacherPackageService teacherPackageService, IAdminMessagingService adminMessagingService)
         {
             this.batchService = batchService;
             this.packageService = packageService;
             this.teacherPackageService = teacherPackageService;
+            this.adminMessagingService = adminMessagingService;
         }
 
         [HttpGet("GetAllBatches")]

@@ -4,6 +4,7 @@ using WebApplication1.DTO;
 using WebApplication1.Models.Auth;
 using WebApplication1.Models.Enums;
 using WebApplication1.Repository.Auth;
+using WebApplication1.Repository.Auth.Impl;
 using WebApplication1.Repository.Interface;
 using WebApplication1.Service.Interface;
 using WebApplication1.Service.Storage;
@@ -127,6 +128,23 @@ public class TeacherProfileService : ITeacherProfileService
         using var qrCodeData = qrGenerator.CreateQrCode(targetUrl, QRCodeGenerator.ECCLevel.Q);
         using var qrCode = new PngByteQRCode(qrCodeData);
         return qrCode.GetGraphic(20);
+    }
+
+
+
+    public async Task<TeacherProfileResponseDto?> GetByTeacherIdAsync(Guid teacherUserId)
+    {
+        var profile = await teacherProfileRepository.GetByUserIdAsync(teacherUserId);
+        if (profile == null)
+        {
+            return null;
+        }
+
+        var fullName = profile.User?.Profile != null
+            ? $"{profile.User.Profile.FirstName} {profile.User.Profile.LastName}".Trim()
+            : null;
+
+        return MapToDto(profile);
     }
 
 

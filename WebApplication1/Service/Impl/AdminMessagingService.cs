@@ -3,6 +3,7 @@
 using WebApplication1.Service.Interface;
 using WebApplication1.Repository.Interface;
 using WebApplication1.Models.System;
+using WebApplication1.Models.Enums;
 
 
 namespace WebApplication1.Service.Communication.Impl;
@@ -15,25 +16,25 @@ public class AdminMessagingService : IAdminMessagingService
 
     public AdminMessagingService(IAdminMessagingRepository adminMessagingRepository, IEmailService emailService, ISmsService smsService)
     {
-        adminMessagingRepository = adminMessagingRepository;
-        emailService = emailService;
-        smsService = smsService;
+        this.adminMessagingRepository = adminMessagingRepository;
+        this.emailService = emailService;
+        this.smsService = smsService;
     }
 
     public async Task<object> BroadcastToTeachersAsync(SendAdminTeacherMessageDto dto, Guid superAdminId)
     {
-        if ((dto.Channel == "EMAIL" || dto.Channel == "BOTH") && string.IsNullOrWhiteSpace(dto.Subject))
+        if ((dto.Channel == MessageChannel.EMAIL || dto.Channel == MessageChannel.BOTH) && string.IsNullOrWhiteSpace(dto.Subject))
         {
             throw new InvalidOperationException("Subject is required when sending an Email.");
         }
 
-        if (dto.TargetScope == "SPECIFIC" && (dto.TeacherIds == null || !dto.TeacherIds.Any()))
+        if (dto.TargetScope == TargetScopeType.SPECIFIC && (dto.TeacherIds == null || !dto.TeacherIds.Any()))
         {
             throw new InvalidOperationException("Please provide at least one TeacherId when TargetScope is SPECIFIC.");
         }
 
         // All -> null ; Specifiv -> Teacher Id
-        var targetIds = dto.TargetScope == "SPECIFIC" ? dto.TeacherIds : null;
+        var targetIds = dto.TargetScope == TargetScopeType.SPECIFIC ? dto.TeacherIds : null;
         var teachers = await adminMessagingRepository.GetActiveTeachersAsync(targetIds);
 
         if (!teachers.Any())
@@ -59,7 +60,7 @@ public class AdminMessagingService : IAdminMessagingService
         int smsSent = 0;
 
         
-        if (dto.Channel == "EMAIL" || dto.Channel == "BOTH")
+        if (dto.Channel == MessageChannel.EMAIL || dto.Channel == MessageChannel.BOTH)
         {
             foreach (var email in targetEmails)
             {
@@ -69,7 +70,7 @@ public class AdminMessagingService : IAdminMessagingService
         }
 
         
-        if (dto.Channel == "SMS" || dto.Channel == "BOTH")
+        if (dto.Channel == MessageChannel.SMS || dto.Channel == MessageChannel.BOTH)
         {
             foreach (var phone in targetPhones)
             {
@@ -82,8 +83,8 @@ public class AdminMessagingService : IAdminMessagingService
         var log = new AdminTeacherBroadcastLog
         {
             SentBySuperAdminId = superAdminId,
-            Channel = dto.Channel,
-            TargetScope = dto.TargetScope,
+            Channel = dto.Channel.ToString(),
+            TargetScope = dto.TargetScope.ToString(),
             Subject = dto.Subject,
             MessageBody = dto.MessageBody,
             TotalEmailsSent = emailsSent,
