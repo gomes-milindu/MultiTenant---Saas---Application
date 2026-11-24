@@ -23,7 +23,7 @@ public class StorageTestController : ControllerBase
         var bucketName = _configuration["Supabase:BucketName"];
 
         if (string.IsNullOrWhiteSpace(supabaseUrl) || string.IsNullOrWhiteSpace(serviceRoleKey))
-            return BadRequest(new { message = "appsettings.json හි Supabase Url හෝ ServiceRoleKey නොමැත." });
+            return BadRequest(new { message = "in appsettings.json, Supabase Url or ServiceRoleKey not found" });
 
         var fileName = $"ping-{Guid.NewGuid()}.txt";
         var objectPath = $"connection-tests/{fileName}";

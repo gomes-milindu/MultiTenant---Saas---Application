@@ -27,20 +27,13 @@ namespace WebApplication1.Controllers
                 return Unauthorized(new { message = "Invalid token user identity." });
             }
 
-            ///currentUserId = idClaim;
-            try
+            var result = await _instituteService.CreateAsync(dto, currentUserId);
+            return Ok(new
             {
-                var result = await _instituteService.CreateAsync(dto, currentUserId);
-                return Ok(new
-                {
-                    message = "Institute created successfully",
-                    data = result
-                });
-            }
-            catch (InvalidOperationException ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
+                message = "Institute created successfully",
+                data = result
+            });
+
         }
     }
 }

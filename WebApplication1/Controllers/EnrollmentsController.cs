@@ -34,37 +34,15 @@ namespace WebApplication1.Controllers
                 });
             }
 
-            try
-            {
-                var result = await enrollmentService.CreateAsync(dto, studentUserId);
 
-                return StatusCode(StatusCodes.Status201Created, new
-                {
-                    message = "Enrollment request submitted successfully.",
-                    data = result
-                });
-            }
-            catch (KeyNotFoundException ex)
+            var result = await enrollmentService.CreateAsync(dto, studentUserId);
+
+            return StatusCode(StatusCodes.Status201Created, new
             {
-                return NotFound(new
-                {
-                    message = ex.Message
-                });
-            }
-            catch (InvalidOperationException ex)
-            {
-                return BadRequest(new
-                {
-                    message = ex.Message
-                });
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                return StatusCode(StatusCodes.Status403Forbidden, new
-                {
-                    message = ex.Message
-                });
-            }
+                message = "Enrollment request submitted successfully.",
+                data = result
+            });
+
         }
 
 
@@ -79,23 +57,8 @@ namespace WebApplication1.Controllers
             var isAdmin = User.IsInRole("Admin") || User.IsInRole("SuperAdmin");
             Guid targetTeacherId = isAdmin ? teacherId : currentUserId;
 
-            try
-            {
-                var count = await enrollmentService.GetTotalActiveStudentsCountByTeacherAsync(targetTeacherId);
-                return Ok(new { TeacherId = targetTeacherId, ActiveStudentsCount = count });
-            }
-            catch (KeyNotFoundException ex)
-            {
-                return NotFound(new { message = ex.Message });
-            }
-            catch (InvalidOperationException ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                return StatusCode(StatusCodes.Status403Forbidden, new { message = ex.Message });
-            }
+            var count = await enrollmentService.GetTotalActiveStudentsCountByTeacherAsync(targetTeacherId);
+            return Ok(new { TeacherId = targetTeacherId, ActiveStudentsCount = count });
 
         }
 

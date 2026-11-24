@@ -32,39 +32,16 @@ namespace WebApplication1.Controllers
 
             var isAdmin = User.IsInRole("SuperAdmin");
 
-            try
+
+            var result = await batchService.CreateAsync(dto, currentUserId, isAdmin);
+            return Ok(new
             {
-                var result = await batchService.CreateAsync(dto, currentUserId, isAdmin);
-                return Ok(new
-                {
-                    message = "Batch created successfully",
-                    data = result
-                });
-            }
-            catch (KeyNotFoundException ex)
-            {
-                return NotFound(new { message = ex.Message });
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                return StatusCode(StatusCodes.Status403Forbidden, new { message = ex.Message });
-            }
-            catch (InvalidOperationException ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
+                message = "Batch created successfully",
+                data = result
+            });
+
+
         }
-
-
-        //[HttpGet]
-        //[Authorize(Roles = "SuperAdmin")] // 🔒 Super Admin ට පමණක් සීමා කර ඇත
-
-        //public async Task<IActionResult> GetAll()
-        //{
-        //    var batches = await batchService.GetAllAsync();
-        //    return Ok(batches);
-        //}
-
 
 
         [HttpGet("GetTeacherBatchesAndCount")]
@@ -79,31 +56,16 @@ namespace WebApplication1.Controllers
 
             var isAdmin = User.IsInRole("SuperAdmin");
 
-            try
-            {
-                var result = await batchService.GetBatchesByTeacherAsync(teacherId, currentUserId, isAdmin);
 
-                return Ok(new
-                {
-                    message = "Batches retrieved successfully",
-                    count = result.TotalCount,
-                    data = result.Batches
-                });
-            }
-            catch (KeyNotFoundException ex)
-            {
-                return NotFound(new { message = ex.Message });
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                return StatusCode(StatusCodes.Status403Forbidden, new { message = ex.Message });
-            }
-            catch (InvalidOperationException ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
+            var result = await batchService.GetBatchesByTeacherAsync(teacherId, currentUserId, isAdmin);
 
+            return Ok(new
+            {
+                message = "Batches retrieved successfully",
+                count = result.TotalCount,
+                data = result.Batches
+            });
         }
-
+            
     }
 }

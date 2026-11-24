@@ -34,6 +34,7 @@ namespace WebApplication1.Controllers
             return Ok(batches);
         }
 
+
         [HttpGet("GetPackages,{id:guid}")]
         public async Task<IActionResult> GetPackagesById(Guid id)
         {
@@ -44,20 +45,14 @@ namespace WebApplication1.Controllers
                 return Unauthorized(new { message = "Invalid token user identity." });
             }
 
-            try
-            {
-                var result = await packageService.GetPackagesByIdAsync(id);
+            var result = await packageService.GetPackagesByIdAsync(id);
 
-                return StatusCode(StatusCodes.Status201Created, new
-                {
-                    message = "Retrieve package successfully",
-                    data = result
-                });
-            }
-            catch (InvalidOperationException ex)
+            return StatusCode(StatusCodes.Status201Created, new
             {
-                return BadRequest(new { message = ex.Message });
-            }
+                message = "Retrieve package successfully",
+                data = result
+            });
+
         }
 
 
@@ -69,29 +64,18 @@ namespace WebApplication1.Controllers
         }
 
 
-        [HttpPut("UpdateReminderEmailSettings")]
-        
+        [HttpPut("UpdateReminderEmailSettings")]     
         public async Task<IActionResult> UpdateSettings([FromBody] UpdateReminderSettingsDto dto)
         {
-            try
+            var result = await teacherPackageService.UpdateSettingsAsync(dto);
+            return Ok(new
             {
-                var result = await teacherPackageService.UpdateSettingsAsync(dto);
-                return Ok(new
-                {
-                    success = true,
-                    message = "Package reminder settings updated successfully.",
-                    data = result
-                });
-            }
-            catch (InvalidOperationException ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, new { message = ex.Message });
-            }
+                success = true,
+                message = "Package reminder settings updated successfully.",
+                data = result
+            });
         }
+
 
         [HttpPost("SendMsgtoTeachers")]
         public async Task<IActionResult> SendToTeachers([FromBody] SendAdminTeacherMessageDto dto)
@@ -100,19 +84,9 @@ namespace WebApplication1.Controllers
             if (!Guid.TryParse(idClaim, out var superAdminId))
                 return Unauthorized(new { message = "Invalid token user identity." });
 
-            try
-            {
-                var result = await adminMessagingService.BroadcastToTeachersAsync(dto, superAdminId);
-                return Ok(result);
-            }
-            catch (KeyNotFoundException ex)
-            {
-                return NotFound(new { message = ex.Message });
-            }
-            catch (InvalidOperationException ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
+            var result = await adminMessagingService.BroadcastToTeachersAsync(dto, superAdminId);
+            return Ok(result);
+
         }
     }
 }

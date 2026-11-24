@@ -29,20 +29,14 @@ namespace WebApplication1.Controllers
                 return Unauthorized(new { message = "Invalid token user identity." });
             }
 
-            try
-            {
-                var result = await packageService.CreateAsync(dto, currentUserId);
+            var result = await packageService.CreateAsync(dto, currentUserId);
 
-                return StatusCode(StatusCodes.Status201Created, new
-                {
-                    message = "Package created successfully",
-                    data = result
-                });
-            }
-            catch (InvalidOperationException ex)
+            return StatusCode(StatusCodes.Status201Created, new
             {
-                return BadRequest(new { message = ex.Message });
-            }
+                message = "Package created successfully",
+                data = result
+            });
+
         }
 
         

@@ -31,6 +31,7 @@ namespace WebApplication1.Controllers
             return Ok("User registered successfully");
         }
 
+
         [HttpPost("SendEmailToVerify")]
         public async Task<IActionResult> SendEmail([FromQuery] string email)
         {
@@ -38,30 +39,23 @@ namespace WebApplication1.Controllers
 
             var user = await userService.GetUserByEmail(email);
 
-
             if (user == null)
             {
                 return NotFound("User Not Found");
             }
 
-            try
-            {
-                var result = await userService.SendVerificationEmail(user);
+            var result = await userService.SendVerificationEmail(user);
 
-                if (result)
-                {
-                    return Ok("Verification email sent successfully");
-                }
-
-                return StatusCode(500, "Failed to send verification email: Service returned false.");
-            }
-            catch (Exception ex)
+            if (result)
             {
-                // Catching the exception guarantees this path also returns an IActionResult
-                return StatusCode(500, $"Email error: {ex.Message} -> {ex.InnerException?.Message}");
+                return Ok("Verification email sent successfully");
             }
+
+            return StatusCode(500, "Failed to send verification email: Service returned false.");
+
 
         }
+
 
         [HttpPost("VerifyEmailOtp")]
         public async Task<IActionResult> VerifyEmailOtp(VerifyEmailOtp dto)
@@ -70,23 +64,19 @@ namespace WebApplication1.Controllers
             {
                 return BadRequest(ModelState);
             }
-            try
+
+            var result = await userService.VerifyEmailOtp(dto);
+            if (result)
             {
-                var result = await userService.VerifyEmailOtp(dto);
-                if (result)
-                {
-                    return Ok("Email verified successfully");
-                }
-                else
-                {
-                    return BadRequest("Invalid OTP");
-                }
+                return Ok("Email verified successfully");
             }
-            catch (Exception e)
+            else
             {
-                return BadRequest(e.Message);
+                return BadRequest("Invalid OTP");
             }
+
         }
+
 
         [HttpPost("SendSmsToVerify")]
         public async Task<IActionResult> SendSms([FromBody] string email)
@@ -116,22 +106,17 @@ namespace WebApplication1.Controllers
             {
                 return BadRequest(ModelState);
             }
-            try
+
+            var result = await userService.VerifySmsOtp(dto);
+            if (result)
             {
-                var result = await userService.VerifySmsOtp(dto);
-                if (result)
-                {
-                    return Ok("Mobile Number verified successfully");
-                }
-                else
-                {
-                    return BadRequest("Invalid OTP or User not Found");
-                }
+                return Ok("Mobile Number verified successfully");
             }
-            catch (Exception e)
+            else
             {
-                return BadRequest(e.Message);
+                return BadRequest("Invalid OTP or User not Found");
             }
+
         }
 
 
@@ -144,6 +129,7 @@ namespace WebApplication1.Controllers
             return Ok(user);
 
         }
+
 
         [HttpGet("SearchUserByUsername")]
         public async Task<IActionResult> GetUserByUsername(string username)
@@ -190,8 +176,6 @@ namespace WebApplication1.Controllers
             await userService.UpdateUser(updateUser);
             return Ok("User Update successfully");
         }
-        
-
-        
+                
     }
 }

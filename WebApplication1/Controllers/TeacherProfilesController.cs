@@ -35,27 +35,14 @@ namespace WebApplication1.Controllers
                 return BadRequest(new { message = "teacherId is required for super admin." });
             }
 
-            try
+
+            var result = await teacherProfileService.CreateOrUpdateMyProfileAsync(dto, currentUserId, isAdmin);
+            return Ok(new
             {
-                var result = await teacherProfileService.CreateOrUpdateMyProfileAsync(dto, currentUserId, isAdmin);
-                return Ok(new
-                {
-                    message = "Teacher profile saved successfully.",
-                    data = result
-                });
-            }
-            catch (KeyNotFoundException ex)
-            {
-                return NotFound(new { message = ex.Message });
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                return StatusCode(StatusCodes.Status403Forbidden, new { message = ex.Message });
-            }
-            catch (InvalidOperationException ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
+                message = "Teacher profile saved successfully.",
+                data = result
+            });
+
         }
 
 

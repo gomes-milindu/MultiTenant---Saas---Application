@@ -23,11 +23,6 @@ public class ClassesController : ControllerBase
     
     [HttpPost("CreateClasses")]
     [Authorize(Roles = "Admin,SuperAdmin,Teacher")]
-    [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(ClassResponseDto))]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType(StatusCodes.Status403Forbidden)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Create([FromBody] CreateClassDto dto)
     {
         
@@ -39,27 +34,14 @@ public class ClassesController : ControllerBase
 
         var isAdmin = User.IsInRole("Admin") || User.IsInRole("SuperAdmin");
 
-        try
-        {
-            var result = await classService.CreateAsync(dto, currentUserId, isAdmin);
 
-            return StatusCode(StatusCodes.Status201Created, new
-            {
-                message = "Class created successfully",
-                data = result
-            });
-        }
-        catch (KeyNotFoundException ex)
+        var result = await classService.CreateAsync(dto, currentUserId, isAdmin);
+
+        return StatusCode(StatusCodes.Status201Created, new
         {
-            return NotFound(new { message = ex.Message });
-        }
-        catch (UnauthorizedAccessException ex)
-        {
-            return StatusCode(StatusCodes.Status403Forbidden, new { message = ex.Message });
-        }
-        catch (InvalidOperationException ex)
-        {
-            return BadRequest(new { message = ex.Message });
-        }
+            message = "Class created successfully",
+            data = result
+        });
+
     }
 }

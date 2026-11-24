@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.RateLimiting;
 using WebApplication1.BackgroundServices;
 using WebApplication1.Data;
+using WebApplication1.Middleware;
 using WebApplication1.Repository.Auth.Impl;
 using WebApplication1.Repository.Communication.Impl;
 using WebApplication1.Repository.Impl;
@@ -187,7 +188,9 @@ builder.Services.AddCors(options =>
     });
 });
 
-
+// Global Exception Handling & ProblemDetails
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+builder.Services.AddProblemDetails();
 
 var app = builder.Build();
 
@@ -218,7 +221,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
+app.UseExceptionHandler();
 app.UseHttpsRedirection();
 app.UseCors("AllowAll");
 app.UseRouting();

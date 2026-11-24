@@ -25,7 +25,6 @@ namespace WebApplication1.Controllers
 
         [HttpPost("Subscribe")]
         [Authorize(Roles = "Teacher")]
-
         public async Task<IActionResult> Subscribe([FromBody] CreateTeacherPackageDto dto)
         {
             var idClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -34,42 +33,29 @@ namespace WebApplication1.Controllers
                 return Unauthorized(new { message = "Invalid token user identity." });
             }
 
-            try
-            {
-                var result = await teacherPackageService.SubscribeAsync(dto, currentUserId);
+            var result = await teacherPackageService.SubscribeAsync(dto, currentUserId);
 
-                return StatusCode(StatusCodes.Status201Created, new
-                {
-                    message = "Successfully subscribed to the package.",
-                    data = result
-                });
-            }
-            catch (InvalidOperationException ex)
+            return StatusCode(StatusCodes.Status201Created, new
             {
-                return BadRequest(new { message = ex.Message });
-            }
+                message = "Successfully subscribed to the package.",
+                data = result
+            });
+
         }
+
 
         [HttpPost("PaymentDone")]
         [AllowAnonymous]
         public async Task<IActionResult> PaymentSuccessWebhook([FromBody] PaymentWebhookDto payload)
         {
             // Gateway Signature (PayHere/Stripe) Verify in here
+            var success = await teacherPackageService.ActivatePackageAsync(payload.TeacherPackageId);
 
-            try
-            {
-                
-                var success = await teacherPackageService.ActivatePackageAsync(payload.TeacherPackageId);
+            if (success)
+                return Ok(new { message = "Package activated successfully." });
 
-                if (success)
-                    return Ok(new { message = "Package activated successfully." });
+            return BadRequest(new { message = "Package not found or already active." });
 
-                return BadRequest(new { message = "Package not found or already active." });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { message = "Internal error during activation." });
-            }
         }
 
 
@@ -116,24 +102,18 @@ namespace WebApplication1.Controllers
                 return BadRequest(new { message = "teacherId is required for super admin." });
             }
 
-            try
-            {
-                var remainingDays = await teacherPackageService.GetRemainingDaysAsync(teacherId ?? Guid.Empty, currentUserId, isAdmin);
 
-                return Ok(new
-                {
-                    success = true,
-                    PackageName = remainingDays.PackageName,
-                    remainingDays = remainingDays.RemainingDays,
-                    totalDays = remainingDays.TotalDays,
-                    message = remainingDays.RemainingDays > 0 ? $"{remainingDays.RemainingDays} day(s) remaining for the package.": "The package has expired or there is no active package."
-                });
-            }
-            catch (Exception)
+            var remainingDays = await teacherPackageService.GetRemainingDaysAsync(teacherId ?? Guid.Empty, currentUserId, isAdmin);
+
+            return Ok(new
             {
-                return StatusCode(StatusCodes.Status500InternalServerError,
-                    new { message = "An unexpected error occurred." });
-            }
+                success = true,
+                PackageName = remainingDays.PackageName,
+                remainingDays = remainingDays.RemainingDays,
+                totalDays = remainingDays.TotalDays,
+                message = remainingDays.RemainingDays > 0 ? $"{remainingDays.RemainingDays} day(s) remaining for the package." : "The package has expired or there is no active package."
+            });
+
         }
 
     }

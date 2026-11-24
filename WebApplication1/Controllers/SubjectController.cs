@@ -31,19 +31,13 @@ namespace WebApplication1.Controllers
 
             var isAdmin = User.IsInRole("SuperAdmin");
 
-            try
+            var result = await subjectService.CreateAsync(dto, currentUserId, isAdmin);
+            return StatusCode(StatusCodes.Status201Created, new
             {
-                var result = await subjectService.CreateAsync(dto, currentUserId, isAdmin);
-                return StatusCode(StatusCodes.Status201Created, new
-                {
-                    message = "Subject created successfully",
-                    data = result
-                });
-            }
-            catch (InvalidOperationException ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
+                message = "Subject created successfully",
+                data = result
+            });
+
         }
     }
 }
