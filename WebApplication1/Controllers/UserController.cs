@@ -1,14 +1,17 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using System.Linq.Expressions;
 using WebApplication1.DTO;
 using WebApplication1.Models;
 using WebApplication1.Repository.Impl;
+using WebApplication1.Service.Impl;
 using WebApplication1.Service.Interface;
 
 namespace WebApplication1.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    
     public class UserController : ControllerBase
     {
         private readonly IUserService userService;
@@ -149,6 +152,23 @@ namespace WebApplication1.Controllers
 
             return Ok(user);
 
+        }
+
+        [HttpGet("SearchUserByNIC")]
+        public async Task<IActionResult> GetUserByNationalId([FromQuery] string nationalId)
+        {
+            if (string.IsNullOrWhiteSpace(nationalId))
+            {
+                return BadRequest(new { message = "National ID is required." });
+            }
+
+            var user = await userService.GetUserByNationalIdAsync(nationalId);
+            if (user == null)
+            {
+                return NotFound(new { message = "No user found with the provided National ID." });
+            }
+
+            return Ok(user);
         }
 
 

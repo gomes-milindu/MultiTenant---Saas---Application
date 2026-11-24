@@ -5,6 +5,7 @@ namespace WebApplication1.Repository.Interface
 {
     public interface IUserRepository
     {
+        Task<User> ExistsByNationalIdAsync(string normalizedNationalId);
         Task<IReadOnlyCollection<UserResponseDto>> GetAllUsers();
         Task<User> GetUserByEmail(string email);
         Task<User> GetUserByIdAsync(Guid guid);

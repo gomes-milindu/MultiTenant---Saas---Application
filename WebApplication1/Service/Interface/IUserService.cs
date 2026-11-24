@@ -8,6 +8,7 @@ namespace WebApplication1.Service.Interface
         Task<IReadOnlyCollection<UserResponseDto>> GetAllUsers();
 
         Task<User> GetUserByEmail(string email);
+        Task<User> GetUserByNationalIdAsync(string nationalId);
         Task<bool> Register(RegisterUserRequest dto);
         Task<UserResponseDto?> SearchUserByEmail(string email);
         Task<UserResponseDto?> SearchUserByUsername(string username);

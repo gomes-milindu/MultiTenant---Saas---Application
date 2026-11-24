@@ -4,6 +4,7 @@ using WebApplication1.DTO;
 using WebApplication1.Models;
 using WebApplication1.Models.Auth;
 using WebApplication1.Models.Enums;
+using WebApplication1.Repository.Impl;
 using WebApplication1.Repository.Interface;
 using WebApplication1.Service.Interface;
 
@@ -66,16 +67,53 @@ namespace WebApplication1.Service.Impl
             return user;
         }
 
+        public async Task<User> GetUserByNationalIdAsync(string nationalId)
+        {
+            var normalizedNic = nationalId.Trim().ToUpperInvariant();
+
+            // Repository එකේ Blind Index (NationalIdHash) හරහා User ව සොයාගනී
+            var user = await userRepository.ExistsByNationalIdAsync(normalizedNic);
+            if (user == null)
+            {
+                return null;
+            }
+
+            return user;
+        }
+
 
         public async Task<bool> Register(RegisterUserRequest dto)
         {
+
+            var normalizedUsername = dto.Username.Trim();
+            var normalizedEmail = dto.Email.Trim().ToLowerInvariant();
+            var normalizedNationalId = dto.NationalId.Trim().ToUpperInvariant();
+            var normalizedPhone = dto.PhoneNumber?.Trim();
+
+            if (await userRepository.GetUserByUsername(normalizedUsername) != null)
+            {
+                throw new InvalidOperationException("Username is already taken.");
+            }
+
+            if (await userRepository.GetUserByEmail(normalizedEmail) != null)
+            {
+                throw new InvalidOperationException("Email is already registered.");
+            }
+
+            if (await userRepository.ExistsByNationalIdAsync(normalizedNationalId) != null)
+            {
+                throw new InvalidOperationException("A user with this National ID is already registered.");
+            }
+
+            var now = DateTime.UtcNow;
+
             var user = new User
             {
                 Id = Guid.NewGuid(),
-                Username = dto.Username.Trim(),
+                Username = normalizedUsername,
                 Status = AccountStatus.Pending,
-                CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow,
+                CreatedAt = now,
+                UpdatedAt = now,
                 Role = UserRole.Teacher,
 
                 Credential = new UserCredential
@@ -83,7 +121,7 @@ namespace WebApplication1.Service.Impl
                     Id = Guid.NewGuid(),
                     PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password),
                     FailedLoginAttempts = 0,
-                    LastPasswordChange = DateTime.UtcNow
+                    LastPasswordChange = now
                 },
 
                 Profile = new UserProfile
@@ -91,23 +129,16 @@ namespace WebApplication1.Service.Impl
                     Id = Guid.NewGuid(),
                     FirstName = dto.FirstName.Trim(),
                     LastName = dto.LastName.Trim(),
-                    Email = dto.Email.Trim().ToLower(),
-                    PhoneNumber = dto.PhoneNumber,
-                    NationalId = dto.NationalId.Trim(),
-                    Address = dto.Address
+                    Email = normalizedEmail,
+                    PhoneNumber = normalizedPhone,
+                    NationalId = normalizedNationalId,
+                    Address = dto.Address?.Trim()
                 }
             };
 
-            var message = "Hi ${user.FirstName}!. you Succesffulyy created the account. Stay tuned for the updates";
+            await userRepository.SaveUser(user);
 
-            
-                await userRepository.SaveUser(user);
-
-                
-             
-                
-
-                 return true;
+            return true;
         }
 
         public async Task<bool> VerifyEmailOtp(VerifyEmailOtp dto)

@@ -16,6 +16,13 @@ namespace WebApplication1.Repository.Impl
             this.context = context;
         }
 
+        public async Task<User> ExistsByNationalIdAsync(string normalizedNationalId)
+        {
+            var nicHash = PiiEncryptionHelper.ComputeBlindIndex(normalizedNationalId);
+
+            return await context.Users.Include(u => u.Profile).FirstOrDefaultAsync(u => u.Profile != null && u.Profile.NationalIdHash == nicHash);
+        }
+
         public async Task<IReadOnlyCollection<UserResponseDto>> GetAllUsers()
         {
             List<UserResponseDto> usersList = await context.Users.Select(u => new UserResponseDto
