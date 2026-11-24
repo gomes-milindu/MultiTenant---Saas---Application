@@ -1,9 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WebApplication1.Models.Academic;
 using WebApplication1.Models.Auth;
 using WebApplication1.Models.Subscriptions;
 using WebApplication1.Models.Subscrition;
 using WebApplication1.Models.System;
+using WebApplication1.Security;
 
 namespace WebApplication1.Data
 {
@@ -56,6 +58,24 @@ namespace WebApplication1.Data
                 .HasOne(u => u.Profile)
                 .WithOne(p => p.User)
                 .HasForeignKey<UserProfile>(p => p.UserId);
+
+            var piiConverter = new ValueConverter<string?, string?>(
+                v => PiiEncryptionHelper.Encrypt(v),
+                v => PiiEncryptionHelper.Decrypt(v)
+            );
+
+            modelBuilder.Entity<UserProfile>(entity =>
+            {
+                entity.Property(p => p.Email).HasConversion(piiConverter);
+                entity.Property(p => p.PhoneNumber).HasConversion(piiConverter);
+                entity.Property(p => p.NationalId).HasConversion(piiConverter);
+                entity.Property(p => p.Address).HasConversion(piiConverter);
+
+                // Search සඳහා Indexes
+                entity.HasIndex(p => p.EmailHash);
+                entity.HasIndex(p => p.PhoneNumberHash);
+                entity.HasIndex(p => p.NationalIdHash);
+            });
 
             // Automatically convert all table names to lowercase (users, usercredentials, userprofiles, etc.)
             //foreach (var entity in modelBuilder.Model.GetEntityTypes())
@@ -312,6 +332,21 @@ namespace WebApplication1.Data
                       .HasForeignKey<TeacherProfile>(tp => tp.UserId)
                       .OnDelete(DeleteBehavior.Cascade);
             });
+        }
+
+        public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+        {
+            foreach (var entry in ChangeTracker.Entries<UserProfile>())
+            {
+                if (entry.State is EntityState.Added or EntityState.Modified)
+                {
+                    entry.Entity.EmailHash = PiiEncryptionHelper.ComputeBlindIndex(entry.Entity.Email);
+                    entry.Entity.PhoneNumberHash = PiiEncryptionHelper.ComputeBlindIndex(entry.Entity.PhoneNumber);
+                    entry.Entity.NationalIdHash = PiiEncryptionHelper.ComputeBlindIndex(entry.Entity.NationalId);
+                }
+            }
+
+            return base.SaveChangesAsync(cancellationToken);
         }
     }
 }

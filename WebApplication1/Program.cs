@@ -11,6 +11,7 @@ using WebApplication1.Repository.Auth.Impl;
 using WebApplication1.Repository.Communication.Impl;
 using WebApplication1.Repository.Impl;
 using WebApplication1.Repository.Interface;
+using WebApplication1.Security;
 using WebApplication1.Service.Academic.Impl;
 using WebApplication1.Service.Auth.Impl;
 using WebApplication1.Service.Communication.Impl;
@@ -123,6 +124,20 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 
+
+var enablePiiEncryption = builder.Configuration.GetValue<bool>("Security:EnablePiiEncryption", true);
+var dataEncryptionKey = Environment.GetEnvironmentVariable("DATA_ENCRYPTION_KEY")?.Trim() ?? string.Empty;
+var blindIndexKey = Environment.GetEnvironmentVariable("BLIND_INDEX_KEY")?.Trim() ?? string.Empty;
+
+if (blindIndexKey.Length < 32)
+{
+    throw new InvalidOperationException(
+        $"BLIND_INDEX_KEY is missing or too short (length={blindIndexKey.Length}). " +
+        $"Check your .env file in D:\\Matinus Phy6\\Backend_sandaru\\WebApplication1\\.env");
+}
+
+PiiEncryptionHelper.Initialize(dataEncryptionKey, blindIndexKey, enablePiiEncryption);
+
 // 7. Application Services & Repositories
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IInstituteRepository, InstituteRepository>();
@@ -171,6 +186,8 @@ builder.Services.AddCors(options =>
               .AllowAnyHeader();
     });
 });
+
+
 
 var app = builder.Build();
 

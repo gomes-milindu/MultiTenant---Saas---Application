@@ -1,8 +1,9 @@
-﻿using WebApplication1.Data;
-using WebApplication1.Repository.Interface;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
+using WebApplication1.Data;
 using WebApplication1.DTO;
 using WebApplication1.Models.Auth;
+using WebApplication1.Repository.Interface;
+using WebApplication1.Security;
 
 namespace WebApplication1.Repository.Impl
 {
@@ -33,11 +34,17 @@ namespace WebApplication1.Repository.Impl
 
         public async Task<User> GetUserByEmail(string email)
         {
+            /*
             var user = await context.Users.Include(u => u.Profile)
                 .Include(u => u.Credential)
                 .FirstOrDefaultAsync(u => u.Profile.Email == email);
 
-            return user;
+            return user;*/
+
+            // උදා: GetUserByEmailAsync තුළ
+            var emailHash = PiiEncryptionHelper.ComputeBlindIndex(email);
+            
+            return await context.Users.Include(u => u.Profile).Include(u => u.Credential).FirstOrDefaultAsync(u => u.Profile != null && u.Profile.EmailHash == emailHash);
         }
 
         public async Task<User> GetUserByIdAsync(Guid guid)

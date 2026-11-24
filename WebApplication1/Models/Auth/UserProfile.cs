@@ -29,6 +29,15 @@ namespace WebApplication1.Models.Auth
 
         public string? Address { get; set; }
 
+        [MaxLength(1000)]
+        public string? EmailHash { get; set; }
+
+        [MaxLength(1000)]
+        public string? PhoneNumberHash { get; set; }
+
+        [MaxLength(1000)]
+        public string? NationalIdHash { get; set; }
+
         [ForeignKey("UserId")]
         public virtual User User { get; set; }
     }

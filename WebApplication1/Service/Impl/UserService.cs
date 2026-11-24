@@ -144,6 +144,11 @@ namespace WebApplication1.Service.Impl
 
         public async Task<bool> SendVerificationSms(User user)
         {
+            if (user.Profile == null || string.IsNullOrWhiteSpace(user.Profile.PhoneNumber))
+            {
+                return false;
+            }
+
             string otp = Random.Shared.Next(100000, 999999).ToString();
             string targetPhoneNumber = user.Profile.PhoneNumber;
 
