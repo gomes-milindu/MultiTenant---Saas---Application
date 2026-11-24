@@ -24,30 +24,31 @@ namespace WebApplication1.Service.Impl
 
         public async Task<bool> SendVerificationEmail(User user)
         {
+            if (user.Profile == null || user.Credential == null || string.IsNullOrWhiteSpace(user.Profile.Email))
+            {
+                return false;
+            }
+
             string otp = Random.Shared.Next(100000, 999999).ToString();
             string targetEmail = user.Profile.Email;
-            string htmlBody = $" <h3>Your otp is 4 is {otp}</h3>";
+            string htmlBody = $"<h3>Your OTP is {otp}</h3>";
 
             try
             {
-                
                 user.Credential.VerificationOtp = otp;
                 user.Credential.OtpGeneratedAt = DateTime.UtcNow;
                 user.Credential.OtpExpiredAt = DateTime.UtcNow.AddMinutes(5);
 
                 await userRepository.SaveUser(user);
-
                 await emailService.SendEmailAsync(targetEmail, "Account Verification", htmlBody);
-                
+
                 return true;
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                Console.WriteLine(e);
+                Console.WriteLine(ex);
                 return false;
             }
-            
-            
         }
 
         public async Task<User> GetUserByEmail(string email)
@@ -58,12 +59,6 @@ namespace WebApplication1.Service.Impl
                 throw new ArgumentNullException("User not found");
                
             }
-
-            
-            //if (user.Status != AccountStatus.Active)
-            //{
-            //    throw new Exception("Account is Not Active");
-            //}
             return user;
         }
 
@@ -71,7 +66,6 @@ namespace WebApplication1.Service.Impl
         {
             var normalizedNic = nationalId.Trim().ToUpperInvariant();
 
-            // Repository එකේ Blind Index (NationalIdHash) හරහා User ව සොයාගනී
             var user = await userRepository.ExistsByNationalIdAsync(normalizedNic);
             if (user == null)
             {
@@ -84,7 +78,6 @@ namespace WebApplication1.Service.Impl
 
         public async Task<bool> Register(RegisterUserRequest dto)
         {
-
             var normalizedUsername = dto.Username.Trim();
             var normalizedEmail = dto.Email.Trim().ToLowerInvariant();
             var normalizedNationalId = dto.NationalId.Trim().ToUpperInvariant();
@@ -103,6 +96,11 @@ namespace WebApplication1.Service.Impl
             if (await userRepository.ExistsByNationalIdAsync(normalizedNationalId) != null)
             {
                 throw new InvalidOperationException("A user with this National ID is already registered.");
+            }
+
+            if (!string.IsNullOrWhiteSpace(normalizedPhone))
+            {
+                throw new InvalidOperationException("Phone number is already registered.");
             }
 
             var now = DateTime.UtcNow;
@@ -240,23 +238,14 @@ namespace WebApplication1.Service.Impl
 
                 if (user.Status == AccountStatus.Active)
                 {
-                    try
-                    {
-                        var message =
-                            $"Hi {user.Profile.FirstName}! " +
-                            "You successfully activated your account. " +
-                            "Stay tuned for updates.";
+                    
+                    var message =
+                        $"Hi {user.Profile.FirstName}! " +
+                        "You successfully activated your account. " +
+                        "Stay tuned for updates.";
 
-                        await smsService.SendSmsAsync(
-                            user.Profile.PhoneNumber,
-                            message
-                        );
-                    }
-                    catch (Exception)
-                    {
-                        // OTP verification succeeded even if notification failed.
-                        // Log the exception here.
-                    }
+                    await smsService.SendSmsAsync(user.Profile.PhoneNumber, message );
+           
                 }
                 return true;
             }
@@ -293,16 +282,13 @@ namespace WebApplication1.Service.Impl
 
         public async Task<bool> UpdateUser(UpdateUserDto updateUser)
         {
-
-            
+        
             var updateUserEmail =await  userRepository.GetUserByEmail(updateUser.Password);
             if (updateUserEmail == null)
             {
                 return false;
             }
-
-           
-
+      
             return true;
         }
 
