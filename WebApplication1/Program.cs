@@ -44,6 +44,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     });
 });
 
+
 // 3. Rate Limiter
 builder.Services.AddRateLimiter(options =>
 {
@@ -172,7 +173,7 @@ builder.Services.AddScoped<ITeacherPackageService, TeacherPackageService>();
 builder.Services.AddScoped<ITeacherProfileRepository, TeacherProfileRepository>();
 builder.Services.AddScoped<ITeacherProfileService, TeacherProfileService>();
 builder.Services.AddHttpClient<IFileStorageService, SupabaseStorageService>();
-
+builder.Services.AddHostedService<SystemHealthMonitorBackgroundService>();
 builder.Services.AddScoped<IAdminMessagingRepository, AdminMessagingRepository>();
 
 // Service registration (මේක දැනටමත් ඇති)
