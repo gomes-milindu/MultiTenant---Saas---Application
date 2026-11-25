@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -125,6 +126,11 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 
+builder.Services.AddHealthChecks()
+    .AddDbContextCheck<AppDbContext>("database")
+    .AddCheck<SupabaseHealthCheck>("supabase_storage")
+    .AddCheck<EmailHealthCheck>("email_smtp")
+    .AddCheck<SmsHealthCheck>("sms_gateway");
 
 var enablePiiEncryption = builder.Configuration.GetValue<bool>("Security:EnablePiiEncryption", true);
 var dataEncryptionKey = Environment.GetEnvironmentVariable("DATA_ENCRYPTION_KEY")?.Trim() ?? string.Empty;
@@ -221,6 +227,10 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+app.MapHealthChecks("/health").AllowAnonymous();
+ 
+
+
 app.UseExceptionHandler();
 app.UseHttpsRedirection();
 app.UseCors("AllowAll");

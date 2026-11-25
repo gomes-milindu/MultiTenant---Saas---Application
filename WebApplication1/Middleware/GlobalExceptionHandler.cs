@@ -37,11 +37,15 @@ public class GlobalExceptionHandler : IExceptionHandler
                 "Access Denied",
                 ex.Message
             ),
-            InvalidOperationException ex => (
-                StatusCodes.Status400BadRequest,
-                "Bad Request",
-                ex.Message
+            Microsoft.EntityFrameworkCore.Storage.RetryLimitExceededException or TimeoutException => (
+                StatusCodes.Status503ServiceUnavailable, "Service Temporarily Unavailable",
+                    "Network connection is slow or unstable. Please try again in a few seconds."),
+                    InvalidOperationException ex => (
+                        StatusCodes.Status400BadRequest,
+                        "Bad Request",
+                        ex.Message
             ),
+
             ArgumentException ex => (
                 StatusCodes.Status400BadRequest,
                 "Invalid Argument",

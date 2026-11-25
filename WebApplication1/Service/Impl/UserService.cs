@@ -98,11 +98,6 @@ namespace WebApplication1.Service.Impl
                 throw new InvalidOperationException("A user with this National ID is already registered.");
             }
 
-            if (!string.IsNullOrWhiteSpace(normalizedPhone))
-            {
-                throw new InvalidOperationException("Phone number is already registered.");
-            }
-
             var now = DateTime.UtcNow;
 
             var user = new User

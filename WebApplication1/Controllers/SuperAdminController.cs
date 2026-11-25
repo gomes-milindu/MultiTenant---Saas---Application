@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using System.Security.Claims;
 using WebApplication1.DTO;
 using WebApplication1.Service.Impl;
@@ -17,14 +18,16 @@ namespace WebApplication1.Controllers
         private readonly IPackageService packageService;
         private readonly ITeacherPackageService teacherPackageService;
         private readonly IAdminMessagingService adminMessagingService;
+        private readonly HealthCheckService healthCheckService;
 
         // Constructor Injection
-        public SuperAdminController(IBatchService batchService, IPackageService packageService, ITeacherPackageService teacherPackageService, IAdminMessagingService adminMessagingService)
+        public SuperAdminController(IBatchService batchService, IPackageService packageService, ITeacherPackageService teacherPackageService, IAdminMessagingService adminMessagingService, HealthCheckService healthCheckService)
         {
             this.batchService = batchService;
             this.packageService = packageService;
             this.teacherPackageService = teacherPackageService;
             this.adminMessagingService = adminMessagingService;
+            this.healthCheckService = healthCheckService;
         }
 
         [HttpGet("GetAllBatches")]
@@ -87,6 +90,34 @@ namespace WebApplication1.Controllers
             var result = await adminMessagingService.BroadcastToTeachersAsync(dto, superAdminId);
             return Ok(result);
 
+        }
+
+
+        [HttpGet("HealthCheck")]
+        [AllowAnonymous]
+        public async Task<IActionResult> CheckHealth(CancellationToken cancellationToken)
+        {
+            var report = await healthCheckService.CheckHealthAsync(cancellationToken);
+
+            var response = new
+            {
+                overallStatus = report.Status.ToString(),
+                totalDurationMs = Math.Round(report.TotalDuration.TotalMilliseconds, 2),
+                services = report.Entries.Select(e => new
+                {
+                    name = e.Key,
+                    status = e.Value.Status.ToString(),
+                    latencyMs = Math.Round(e.Value.Duration.TotalMilliseconds, 2),
+                    description = e.Value.Description,
+                    error = e.Value.Exception?.Message
+                })
+            };
+
+            var statusCode = report.Status == HealthStatus.Healthy
+                ? StatusCodes.Status200OK
+                : StatusCodes.Status503ServiceUnavailable;
+
+            return StatusCode(statusCode, response);
         }
     }
 }
