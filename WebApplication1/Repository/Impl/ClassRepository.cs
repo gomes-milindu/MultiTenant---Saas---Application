@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using WebApplication1.Data;
+using WebApplication1.DTOs.Auth.TeacherProfile;
 using WebApplication1.Models.Academic;
 using WebApplication1.Models.Enums;
 using WebApplication1.Repository.Interface;
@@ -46,6 +47,29 @@ namespace WebApplication1.Repository.Impl
         {
             return await _context.Classes.Include(c => c.Institute).Where(c => c.Institute.OwnerUserId == teacherUserId && c.Status == ClassStatus.Active)
           .CountAsync();
+        }
+
+        public async Task<IEnumerable<TeacherScannedClassDto>> GetActiveClassesWithFeeByTeacherIdAsync(Guid teacherUserId)
+        {
+            var query = from c in _context.Classes
+                        join fp in _context.ClassFeePlans.Where(f => f.IsActive)
+                            on c.Id equals fp.ClassId into feeGroup
+                        from activeFee in feeGroup.DefaultIfEmpty() 
+                        where c.TeacherUserId == teacherUserId && c.Status == ClassStatus.Active
+                        orderby c.Batch.AcademicYear, c.Title
+                        select new TeacherScannedClassDto
+                        {
+                            ClassId = c.Id,
+                            Title = c.Title,
+                            Schedule = c.Schedule,
+                            SubjectName = c.Subject.Name,
+                            BatchName = c.Batch.Name,
+                            AcademicYear = c.Batch.AcademicYear,
+                            InstituteName = c.Institute.Name,
+                            MonthlyFee = activeFee != null ? activeFee.MonthlyFee : null
+                        };
+
+            return await query.AsNoTracking().ToListAsync();
         }
     }
 }

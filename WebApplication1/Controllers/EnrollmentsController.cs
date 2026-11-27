@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using WebApplication1.DTO;
+using WebApplication1.Service.Auth.Impl;
 using WebApplication1.Service.Impl;
 using WebApplication1.Service.Interface;
 
@@ -13,10 +14,12 @@ namespace WebApplication1.Controllers
     public class EnrollmentsController : ControllerBase
     {
         private readonly IEnrollmentService enrollmentService;
+        private readonly ITeacherProfileService teacherProfileService;
 
-        public EnrollmentsController(IEnrollmentService enrollmentService)
+        public EnrollmentsController(IEnrollmentService enrollmentService, ITeacherProfileService teacherProfileService)
         {
             this.enrollmentService = enrollmentService;
+            this.teacherProfileService = teacherProfileService;
         }
 
         [HttpPost("RequestEnrollment")]
@@ -75,6 +78,21 @@ namespace WebApplication1.Controllers
             var exists = await enrollmentService.ExistsByStudentAndClassAsync(studentUserId, classId);
 
             return Ok(new { ClassId = classId, IsEnrolledOrPending = exists });
+        }
+
+
+
+        [HttpGet("ScanTeachersQR")]
+        [Authorize]
+        public async Task<IActionResult> ScanTeacherQr(Guid teacherId)
+        {
+            var result = await teacherProfileService.ScanTeacherQrAsync(teacherId);
+            if (result == null)
+            {
+                return NotFound(new { message = "Teacher profile not found." });
+            }
+
+            return Ok(result);
         }
 
     }

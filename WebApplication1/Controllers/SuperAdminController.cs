@@ -11,7 +11,7 @@ namespace WebApplication1.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize(Roles = "SuperAdmin")] // 🔒 SuperAdmin පමණක් restrict කරන නිවැරදි ක්‍රමය
+    [Authorize(Roles = "SuperAdmin")] 
     public class SuperAdminController : ControllerBase
     {
         private readonly IBatchService batchService;

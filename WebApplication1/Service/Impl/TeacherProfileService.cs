@@ -1,10 +1,11 @@
 ﻿using QRCoder;
 using WebApplication1.DTO;
-
+using WebApplication1.DTOs.Auth.TeacherProfile;
 using WebApplication1.Models.Auth;
 using WebApplication1.Models.Enums;
 using WebApplication1.Repository.Auth;
 using WebApplication1.Repository.Auth.Impl;
+using WebApplication1.Repository.Impl;
 using WebApplication1.Repository.Interface;
 using WebApplication1.Service.Interface;
 using WebApplication1.Service.Storage;
@@ -16,17 +17,19 @@ public class TeacherProfileService : ITeacherProfileService
     private readonly ITeacherProfileRepository teacherProfileRepository;
     private readonly IUserRepository userRepository;
     private readonly IFileStorageService fileStorageService;
+    private readonly IClassRepository classRepository;
     private readonly IConfiguration _configuration;
 
     private static readonly string[] AllowedImageExtensions = [".jpg", ".jpeg", ".png", ".webp"];
     private const long MaxImageSizeBytes = 2 * 1024 * 1024; // 2 MB
 
-    public TeacherProfileService(ITeacherProfileRepository teacherProfileRepository, IUserRepository userRepository, IFileStorageService fileStorageService, IConfiguration configuration)
+    public TeacherProfileService(ITeacherProfileRepository teacherProfileRepository, IUserRepository userRepository, IFileStorageService fileStorageService, IConfiguration configuration, IClassRepository classRepository)
     {
         this.teacherProfileRepository = teacherProfileRepository;
         this.userRepository = userRepository;
         this.fileStorageService = fileStorageService;
         _configuration = configuration;
+        this.classRepository = classRepository;
     }
 
     public async Task<TeacherProfileResponseDto> CreateOrUpdateMyProfileAsync(TeacherProfileDto dto, Guid currentUserId, bool isAdmin)
@@ -168,6 +171,31 @@ public class TeacherProfileService : ITeacherProfileService
             Bio = tp.Bio,
             CreatedAt = tp.CreatedAt,
             UpdatedAt = tp.UpdatedAt
+        };
+    }
+
+    public async Task<TeacherQrScanResponseDto?> ScanTeacherQrAsync(Guid teacherUserId)
+    {
+        var profile = await teacherProfileRepository.GetByUserIdAsync(teacherUserId);
+        if (profile == null)
+            return null;
+
+        var activeClasses = await classRepository.GetActiveClassesWithFeeByTeacherIdAsync(teacherUserId);
+
+        var fullName = profile.User?.Profile != null
+            ? $"{profile.User.Profile.FirstName} {profile.User.Profile.LastName}".Trim()
+            : string.Empty;
+
+        return new TeacherQrScanResponseDto
+        {
+            TeacherUserId = profile.UserId,
+            FullName = !string.IsNullOrWhiteSpace(fullName)
+                ? fullName
+                : (profile.User?.Username ?? string.Empty),
+            ProfilePictureUrl = profile.ProfilePictureUrl,
+            Qualifications = profile.Qualifications,
+            Bio = profile.Bio,
+            ActiveClasses = activeClasses
         };
     }
 }

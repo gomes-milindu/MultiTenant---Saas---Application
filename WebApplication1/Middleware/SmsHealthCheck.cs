@@ -15,16 +15,23 @@ public class SmsHealthCheck : IHealthCheck
 
     public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = default)
     {
-        
-        var gatewayUrl = Environment.GetEnvironmentVariable("QUICKSEND_URL") ?? _configuration["SmsSettings:GatewayUrl"];
-        var apiKey = Environment.GetEnvironmentVariable("QUICKSEND_API_KEY") ?? _configuration["SmsSettings:ApiKey"];
+        var gatewayUrl = _configuration["SmsSettings:GatewayUrl"]?.Trim();
+        var apiKey = _configuration["SmsSettings:ApiKey"]?.Trim();
+        var senderId = _configuration["SmsSettings:SenderId"]?.Trim();
+        var email = _configuration["SmsSettings:Email"]?.Trim();
 
-        if (string.IsNullOrWhiteSpace(gatewayUrl) || gatewayUrl == "QUICKSEND URL" || string.IsNullOrWhiteSpace(apiKey) || apiKey == "QUICKSEND API KEY")
+        if (string.IsNullOrWhiteSpace(gatewayUrl) || gatewayUrl == "QUICKSEND URL" || !Uri.TryCreate(gatewayUrl, UriKind.Absolute, out var uri))
         {
-            return HealthCheckResult.Unhealthy("QuickSend SMS Gateway URL or API Key is not configured.");
+            return HealthCheckResult.Unhealthy($"Invalid SMS Gateway URL loaded: '{gatewayUrl ?? "NULL"}'. Ensure .env has SmsSettings__GatewayUrl=https://...");
         }
 
-        var uri = new Uri(gatewayUrl);
+        if (string.IsNullOrWhiteSpace(apiKey) || apiKey == "QUICKSEND API KEY" ||
+            string.IsNullOrWhiteSpace(senderId) || senderId == "QUICKSEND SENDER ID" ||
+            string.IsNullOrWhiteSpace(email) || email == "QUICKSEND EMAIL")
+        {
+            return HealthCheckResult.Unhealthy("QuickSend SMS credentials (ApiKey, SenderId, or Email) not loaded from .env.");
+        }
+
         var baseHostUrl = $"{uri.Scheme}://{uri.Host}";
 
         var client = _httpClientFactory.CreateClient();
@@ -33,6 +40,5 @@ public class SmsHealthCheck : IHealthCheck
         using var response = await client.GetAsync(baseHostUrl, cancellationToken);
 
         return HealthCheckResult.Healthy($"SMS Gateway ({uri.Host}) is reachable (HTTP {(int)response.StatusCode}).");
-        
     }
 }
